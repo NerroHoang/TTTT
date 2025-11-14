@@ -1,0 +1,153 @@
+/* Flashcard Container */
+.flashcard-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 350px;
+    width: 600px;
+    margin: 0 auto;
+    perspective: 1000px; /* Đảm bảo hiệu ứng 3D cho flashcard */
+    cursor: pointer;
+    transition: transform 0.6s ease-in-out; /* Thêm hiệu ứng chuyển động mượt mà */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ */
+    border-radius: 12px; /* Bo góc cho flashcard container */
+}
+
+/* Flashcard */
+.flashcard {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d; /* Bảo vệ 3D cho các mặt của flashcard */
+    transition: transform 0.6s; /* Hiệu ứng chuyển động mượt mà */
+}
+
+/* Flashcard khi lật */
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+/* Nội dung Flashcard */
+.flashcard-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* Ẩn mặt sau khi lật */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    padding: 20px; /* Thêm padding để nội dung không chạm viền */
+    border: 2px solid #dee2e6; /* Đường viền nhẹ */
+    border-radius: 8px; /* Bo góc các cạnh */
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+/* Mặt trước của Flashcard */
+.flashcard-content.front {
+    background-color: #ffffff;
+    color: #333; /* Màu chữ */
+}
+
+/* Mặt sau của Flashcard */
+.flashcard-content.back {
+    background-color: #e9ecef;
+    transform: rotateY(180deg);
+    color: #495057; /* Màu chữ khi nhìn từ phía sau */
+}
+
+/* Nút điều hướng (Trước, Tiếp) */
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.nav-buttons button {
+    font-size: 1.5em;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nav-buttons button:hover {
+    background-color: #0056b3;
+    transform: scale(1.1); /* Phóng to nút khi hover */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nav-buttons button:focus {
+    outline: none;
+}
+
+/* Hiệu ứng Fade-in khi hiển thị flashcard */
+.flashcard-container.fade-in {
+    animation: fade-in 0.6s ease-in-out;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tinh chỉnh bảng flashcards */
+.flashcard-table {
+    width: 100%;
+    margin-top: 30px;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+.flashcard-table th, .flashcard-table td {
+    padding: 12px 20px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 1.1em;
+}
+
+.flashcard-table th {
+    background-color: #f7f7f7;
+    color: #555;
+    font-weight: 500;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.flashcard-table tr:last-child td {
+    border-bottom: none;
+}
+
+.flashcard-table tr:hover {
+    background-color: #f4f4f4;
+    transform: scale(1.02); /* Hiệu ứng phóng to nhẹ khi hover */
+    transition: transform 0.3s ease;
+}
+
+/* Khoảng cách giữa các phần tử */
+.container {
+    padding: 20px;
+}
+
+.flashcard-info {
+    margin-top: 20px;
+}
+
+.nav-buttons {
+    margin-top: 30px;
+}

@@ -1,0 +1,111 @@
+/* Header styling */
+.header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background-color: #ffffff; /* Add a background color for contrast */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+}
+.content {
+    margin-top: 90px; /* Adjusted for better spacing with header */
+}
+.search-bar{
+}
+.search-bar input{
+    margin-right: 5px;
+    width: 500px;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+/* Section list grid */
+.section-list { 
+    padding: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+/* Section card styling */
+.section-card {
+    position: relative;
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.section-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Title and text */
+.section-card h4 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #343a40;
+    font-weight: bold;
+}
+
+.section-card p {
+    font-size: 1rem;
+    margin: 5px 0;
+    color: #6c757d;
+}
+
+/* Status badge */
+.status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 5px 10px;
+    text-align: center;
+    color: #ffffff; /* Màu chữ mặc định là trắng */
+}
+
+.private-status {
+    background-color: #dc3545; /* Red for private */
+    color: #ffffff; /* Đảm bảo chữ màu trắng */
+}
+
+.public-status {
+    background-color: #17a2b8; /* Teal for public */
+    color: #ffffff; /* Đảm bảo chữ màu trắng */
+}
+
+
+/* Footer buttons */
+.section-card .footer {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.create-session {
+    background-color: #f8d7da; /* Màu nền hồng nhạt */
+    cursor: pointer;
+    color: #721c24; /* Màu chữ đậm hơn để tương phản */
+    text-decoration: none;
+    border: 2px dashed #f5c6cb; /* Viền hồng nhạt */
+    border-radius: 10px; /* Góc bo tròn */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển động mượt mà */
+}
+.create-session:hover {
+    background-color: #f5c6cb; /* Màu hồng đậm hơn khi hover */
+    color: #721c24; /* Giữ nguyên màu chữ */
+    border-color: #f1b0b7; /* Viền đậm hơn khi hover */
+}
+

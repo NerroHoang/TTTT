@@ -1,0 +1,38 @@
+/* Đặt màu sắc cho menu */
+.logo{
+    text-decoration: none;  
+}
+.nav-link {
+    font-size: 16px;
+    margin-right: 20px;
+    transition: color 0.3s ease;
+    
+}
+
+.nav-link.active {
+    color: #6f42c1; /* Màu tím nhạt */
+    background-color: transparent;
+    border-bottom: 3px solid #6f42c1; /* Gạch chân */
+}
+
+.nav-link:hover {
+    color: #6f42c1;
+}
+
+.header-logo img {
+    width: 40px;
+    height: 40px;
+}
+
+.user-icon {
+    border: 2px solid #ccc;
+    padding: 2px;
+    width: 35px;
+    height: 35px;
+}
+
+/* Tinh chỉnh khoảng cách */
+
+.header-content{
+   
+}

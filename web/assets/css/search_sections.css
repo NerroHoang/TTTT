@@ -1,0 +1,89 @@
+
+/* Body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+/* Header */
+.header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.content{
+    margin-top: 100px; /* Adjust for header */
+}
+.search-bar input{
+    margin-right: 5px;
+    width: 500px;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.section-list {
+    padding: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+/* Section card styling */
+.section-card {
+    position: relative;
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.section-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Title and text */
+.section-card h4 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #343a40;
+    font-weight: bold;
+}
+
+.section-card p {
+    font-size: 1rem;
+    margin: 5px 0;
+    color: #6c757d;
+}
+
+/* Status badge */
+.status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+.private-status {
+    background-color: #dc3545; /* Red for private */
+}
+
+.public-status {
+    background-color: #17a2b8; /* Teal for public */
+}

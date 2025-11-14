@@ -1,0 +1,215 @@
+/* Nền và font */
+body {
+    background-color: #f8f9fc; /* Màu nền nhẹ */
+    font-family: 'Arial', sans-serif;
+}
+.popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Ẩn mặc định */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.popup-actions button {
+    margin: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+/* Header */
+.header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Nội dung chính */
+.create-section-content {
+    margin-top: 100px;
+    padding-bottom: 30px;
+}
+
+/* Card */
+.card {
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.card-header {
+    background-color: #4e73df;
+    color: white;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 30px;
+}
+
+/* Form Labels */
+.form-label {
+    font-weight: bold;
+    color: #4e73df;
+    margin-bottom: 8px;
+}
+
+/* Input Fields */
+.form-control {
+    border-radius: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Select Field */
+.form-select {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #375aab;
+    border-color: #375aab;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #a71d2a;
+    border-color: #a71d2a;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Flashcards */
+.plash-card {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.plash-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
+}
+
+.line {
+    border-bottom: 1px solid #dee2e6;
+    margin: 10px 0;
+}
+
+/* Flashcard Inputs */
+.plash-card input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #dee2e6;
+    padding: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.plash-card input:focus {
+    border-bottom-color: #4e73df;
+}
+
+/* Delete Flashcard Icon */
+.plash-card i {
+    color: #999;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.plash-card i:hover {
+    color: #dc3545;
+    transform: scale(1.2);
+}
+
+/* Add Flashcard Button */
+.add-plash-card i {
+    background-color: #f8f9fc;
+    border: 2px solid #4e73df;
+    color: #4e73df;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-plash-card i:hover {
+    background-color: #4e73df;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Footer Note */
+.footer-note {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.footer-note a {
+    color: #4e73df;
+    text-decoration: none;
+}
+
+.footer-note a:hover {
+    text-decoration: underline;
+    color: #375aab;
+}
