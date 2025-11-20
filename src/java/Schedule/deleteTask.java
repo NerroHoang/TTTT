@@ -12,10 +12,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author sonhu
- */
+
 @WebServlet(name="deleteTask", urlPatterns={"/deleteTask"})
 public class deleteTask extends HttpServlet {
     private final TaskDAO taskDAO = new TaskDAO();

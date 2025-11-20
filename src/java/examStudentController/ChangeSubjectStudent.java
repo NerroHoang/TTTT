@@ -15,10 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.Exam;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class ChangeSubjectStudent extends HttpServlet {
 
     /**

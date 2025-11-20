@@ -16,10 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 
-/**
- *
- * @author sonhu
- */
+
 @WebServlet("/RequestPasswordServlet")
 public class RequestPasswordServlet extends HttpServlet {
    

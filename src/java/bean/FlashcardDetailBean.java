@@ -4,10 +4,7 @@
  */
 package bean;
 
-/**
- *
- * @author PC
- */
+
 public class FlashcardDetailBean {
     private int flashcardId;
     private String question;

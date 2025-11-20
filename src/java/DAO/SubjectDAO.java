@@ -14,10 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.*;
 
-/**
- *
- * @author Admin
- */
+
 public class SubjectDAO extends DBConnection {
 
     public List<Subjects> getAllSubjects() {

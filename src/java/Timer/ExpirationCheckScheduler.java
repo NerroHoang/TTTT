@@ -4,10 +4,7 @@
  */
 package Timer;
 
-/**
- *
- * @author Admin
- */
+
 import DAO.UserDAO;
 import java.util.Timer;
 import java.util.TimerTask;

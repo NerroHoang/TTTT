@@ -17,10 +17,6 @@ import java.sql.*;
 import java.util.Calendar;
 import model.Users;
 
-/**
- *
- * @author Admin
- */
 public class UpgradeServlet extends HttpServlet {
    
     /** 

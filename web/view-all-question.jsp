@@ -3,729 +3,518 @@
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="java.text.NumberFormat"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
-<style>
-    .page-item {
-        margin: 0 5px; /* 0px trên dưới, 5px trái phải */
-    }
-    #pageSize {
-        background-color: #fff; /* Nền trắng */
-        border: 1px solid #ccc; /* Viền màu xám nhẹ */
-        color: #333; /* Màu chữ tối */
-        font-size: 16px; /* Cỡ chữ */
-        padding: 10px; /* Padding bên trong */
-        border-radius: 5px; /* Bo góc nhẹ cho ô select */
-    }
+<html lang="vi">
 
-    #pageSize:focus {
-        border-color: #007bff; /* Màu viền khi ô được chọn */
-        box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Hiệu ứng shadow khi focus */
-    }
+<head>
+    <meta charset="utf-8">
+    <title>Ngân hàng câu hỏi - THI247 Admin</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    button {
-        border-radius: 5px; /* Bo góc cho button */
-        transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu nền khi hover */
-    }
+    <link href="img/THI247.png" rel="icon">
 
-    button:hover {
-        background-color: #0056b3; /* Màu nền khi hover */
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
-    th {
-        writing-mode: horizontal-tb; /* Đảm bảo văn bản nằm ngang */
-        white-space: nowrap; /* Ngăn ngừa việc cắt chữ hoặc xuống dòng */
-        text-align: center; /* Căn giữa chữ nếu cần */
-    }
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-</style>
-<html lang="en">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-    <head>
-        <meta charset="utf-8">
-        <title></title>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <meta content="" name="keywords">
-        <meta content="" name="description">
+    <link href="assets/css/admin-css.css" rel="stylesheet">
 
-        <!-- Favicon -->
-        <link href="img/THI247.png" rel="icon">
-
-        <!-- Google Web Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css">
-
-        <!-- Icon Font Stylesheet -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            />
-
-        <!-- Libraries Stylesheet -->
-        <link href="lib/animate/animate.min.css" rel="stylesheet">
-        <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-
-        <!-- Customized Bootstrap Stylesheet -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Template Stylesheet -->
-        <link href="assets/css/admin-css.css" rel="stylesheet">
-    </head>
-    <body>
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css"
-            integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o="
-            crossorigin="anonymous"
-            />
-        <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
-            <a href="Home" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
-                <h2 class="m-0 text-primary"><i class="fa fa-book me-3"></i>HCV</h2>
-            </a>
-            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <div class="navbar-nav ms-auto p-4 p-lg-0" id="tagID">
-                    <a href="Home" class="nav-item nav-link tag active">Trang Chủ</a>
-                    <a href="forum.jsp" class="nav-item nav-link tag">Diễn Đàn</a>
-                    <a href="teacher.jsp" class="nav-item nav-link tag">Kiểm Tra</a>
-                    <a href="schedule.jsp" class="nav-item nav-link tag">Thời gian biểu</a>
-                    <%
-
-                        List<QuestionBank> qbs = new ExamDAO().getAllSystemQuestion();    
-                        int size = qbs.size();
-                        if(session.getAttribute("currentUser") == null){
-                    %>
-                    <a href="login.jsp" class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">Tham gia ngay<i class="fa fa-arrow-right ms-3"></i></a> 
-                        <%
-                            }
-                            else{
-                            Users user = (Users)session.getAttribute("currentUser");
-                            TeacherRequest requests = new AdminDAO().getRequestByUserID(user.getUserID());
-                            Subjects subject = new Subjects();
-                            if(requests != null)
-                                subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
-                            String role;
-                            if(user.getRole() == 1) role = "Admin";
-                            else if(user.getRole() == 2) role = "Giáo viên";
-                            else role = "Học sinh";
-                        %>
-                    <a href="recharge.jsp" class="nav-item nav-link tag">
-                        <i class="fas fa-coins"></i>
-                        <span id="user-balance"><%=user.getBalance()%></span> 
-                        <i class="fas fa-plus-circle"></i> 
-                    </a>
-                </div>
-                <li class="nav-item dropdown pe-3 no">
-                    <style>
-                        .no{
-                            display: block;
-                        }
-                    </style>
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="<%=user.getAvatarURL()%>" alt="Profile" width="50" height="50" class="rounded-circle">
-                        <span class="d-none d-md-block dropdown-toggle ps-2"><%=user.getUsername()%></span>
-                    </a><!-- End Profile Iamge Icon -->
-
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6><%=user.getUsername()%></h6>
-                            <span><%=role%> <%if(user.getRole() == 2){%>môn <%=subject.getSubjectName()%><% }%></span>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <%
-                        if(user.getRole() == 1){
-                        %>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="admin.jsp">
-                                <i class="bi bi-person"></i>
-                                <span>Quản lý</span>
-                            </a>
-                        </li>
-                        <%
-                            }
-                        %>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="profile.jsp">
-                                <i class="bi bi-person"></i>
-                                <span>Thông tin</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="logout">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
-                            </a>
-                        </li>
-
-                    </ul><!-- End Profile Dropdown Items -->
-                </li>
-                <%
-                    }
-                %>
-            </div>
-        </nav>
-        <!-- Navbar End -->
-
-        <aside id="sidebar" class="sidebar">
-            <ul class="sidebar-nav" id="sidebar-nav">
-                <li class="nav-item">
-                    <a class="nav-link collapsed"  href="admin.jsp">
-                        <i class="bi bi-grid"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li><!-- End Dashboard Nav -->
-
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-user.jsp">
-                        <i class="bi bi-person"></i>
-                        <span>Tất cả người dùng</span>
-                    </a>
-                </li>
-
-                </li><!-- End Forms Nav -->
-
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-payment.jsp">
-                        <i class="bi bi-gem"></i><span>Giao dịch trong hệ thống</span>
-                    </a>
-                </li><!-- End Tables Nav -->
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-exam.jsp">
-                        <i class="bi bi-journal-check"></i><span>Quản lí kiểm tra</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="view-all-question.jsp">
-                        <i class="bi bi-journal-check"></i><span>Quản lí câu hỏi</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="notification.jsp">
-                        <i class="bi bi-bell"></i><span>Thông báo hệ thống</span>
-                    </a>
-                </li>
-                <!-- End Icons Nav -->
-            </ul>
-        </aside><!-- End Sidebar-->
-
-        <style>
-            .dropdown:hover .dropdown-menu {
-                display: none;
-            }
-
-            .dropdown {
-                position: relative;
-                display: inline-block;
-            }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                background-color: #f1f1f1;
-                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-                z-index: 1;
-            }
-
-            .dropdown-content a {
-                color: black;
-                padding: 12px 16px;
-                text-decoration: none;
-                display: block;
-            }
-            .show {
-                display: block;
-            }
-
-        </style>
-
-        <main id="main" class="main">
-            <h2 class="text-primary">Tất cả câu hỏi của hệ thống</h2>
-            <a href="addquestionbank.jsp"><button class="btn btn-primary" style="color: white">Thêm câu hỏi vào hệ thống</button></a>
-            <br><br>
-
-            <!-- Search -->
-            <form method="GET" action="view-all-question.jsp">
-                <div class="form-group">
-                    <!-- Trường nhập cho tìm kiếm -->
-                    <input type="text" id="search" name="search" class="form-control" placeholder="Nhập tên câu hỏi bạn muốn tìm"
-                           value="<%= request.getParameter("search") != null && !request.getParameter("search").equals("null") ? request.getParameter("search") : "" %>">
-
-                    <!-- Trường ẩn giữ giá trị filter -->
-                    <input type="hidden" name="filter" value="<%= request.getParameter("filter") != null ? request.getParameter("filter") : "all" %>">
-                    <input type="hidden" name="pageSize" value="<%= request.getParameter("pageSize") != null ? request.getParameter("pageSize") : "10" %>">
-                </div>
-                <button type="submit" class="btn btn-primary text-white">Tìm kiếm</button>
-            </form>
-
-            <br><br>
-            <div class="d-flex justify-content-between">
-                <div class="dropdown">
-                    <button onclick="dropdown()" class="dropbtn btn btn-primary dropdown-toggle" style="color: white">
-                        <!-- Kiểm tra xem có môn học nào được chọn không, nếu có thì hiển thị tên môn học -->
-                        <%
-                            String filter = request.getParameter("filter");
-                            if (filter == null) filter = "all";
-                            String displayText = "Lọc theo môn học"; // Mặc định là "Sắp xếp"
-                            if (filter != null && !filter.equals("all")) {
-                                // Tìm môn học đã chọn từ danh sách môn học
-                                List<Subjects> subjects = new ExamDAO().getAllSubject();
-                                for (Subjects subject : subjects) {
-                                    if (String.valueOf(subject.getSubjectID()).equals(filter)) {
-                                        displayText = subject.getSubjectName(); // Hiển thị tên môn học
-                                        break;
-                                    }
-                                }
-                            }
-                        %>
-                        <%= displayText %>
-                    </button>
-                    <div id="myDropdown" class="dropdown-content">
-                        <a class="dropdown-item" href="?filter=all&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>&pageSize=<%= request.getParameter("pageSize") != null ? request.getParameter("pageSize") : "10" %>">
-                            Tất cả môn học
-                        </a>
-                        <%
-                        List<Subjects> subjects = new ExamDAO().getAllSubject();
-                        for (Subjects subject : subjects) {
-                        %>
-                        <a class="dropdown-item" href="?filter=<%= subject.getSubjectID() %>&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>&pageSize=<%= request.getParameter("pageSize") != null ? request.getParameter("pageSize") : "10" %>">
-                            <%= subject.getSubjectName() %>
-                        </a>
-                        <%
-                                    }
-                        %>
-                    </div>
-                </div>
-                <br><br>
-
-
-                <%
-        // Lấy giá trị của pageSize từ request
-        String pageSizeParam = request.getParameter("pageSize");
-
-        // Nếu pageSize là "all", thay thế bằng giá trị mặc định (ví dụ: 10)
-        int pageSize = 10;  // Mặc định nếu không có giá trị hợp lệ
-
-        // Kiểm tra nếu pageSize là "all", bỏ qua
-        if (pageSizeParam != null && !pageSizeParam.isEmpty() && !pageSizeParam.equals("all")) {
-            try {
-                pageSize = Integer.parseInt(pageSizeParam);  // Chuyển đổi thành int nếu không phải "all"
-            } catch (NumberFormatException e) {
-                // Nếu không thể chuyển đổi, giữ giá trị mặc định (10)
-                pageSize = 10;
-            }
+    <style>
+        body {
+            background-color: #f6f9ff;
+            font-family: 'Nunito', sans-serif;
         }
-                %>
+        
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
 
-                <form method="GET" action="view-all-question.jsp">
-                    <label for="pageSize" class="mr-2 ">Số câu hỏi mỗi trang:</label>
-                    <select name="pageSize" id="pageSize">
-                        <option value="10" <%= pageSize == 10 ? "selected" : "" %>>10</option>
-                        <option value="20" <%= pageSize == 20 ? "selected" : "" %>>20</option>
-                        <option value="30" <%= pageSize == 30 ? "selected" : "" %>>30</option>
-                        <option value="50" <%= pageSize == 50 ? "selected" : "" %>>50</option>
-                        <option value="all" <%= "all".equals(pageSizeParam) ? "selected" : "" %>>Tất cả</option>
-                    </select>
-                    <input type="hidden" name="filter" value="<%= request.getParameter("filter") != null ? request.getParameter("filter") : "all" %>">
-                    <input type="hidden" name="search" value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
-                    <button type="submit" class="btn btn-primary text-white">Cập nhật</button>
-                </form>
-            </div>
+        /* Table Styling */
+        .table thead th {
+            background-color: #f6f9ff;
+            color: #012970;
+            border-bottom: 2px solid #e0e5f2;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
 
-            <div class="container">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-primary" scope="col">Câu hỏi</th>
-                            <th class="text-primary" scope="col">Môn học</th>
-                            <th class="text-primary" scope="col">Đáp án</th>
-                            <th class="text-primary" scope="col">Tác vụ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        /* Search & Filter Bar */
+        .search-bar {
+            background: #fff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
 
+        /* Image Thumbnail in Table */
+        .img-thumb-question {
+            max-height: 50px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            padding: 2px;
+        }
 
-                        <!--            list all user    -->
-                        <%
-                        if (qbs == null || qbs.isEmpty()) {
-                            qbs = new ExamDAO().getAllSystemQuestion(); // Đảm bảo không bị null hoặc rỗng
-                        }
+        /* Action Buttons */
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 3px;
+        }
 
+        /* Pagination */
+        .pagination .page-link {
+            border: none;
+            color: #012970;
+            margin: 0 5px;
+            border-radius: 5px;
+        }
+        .pagination .page-item.disabled .page-link {
+            background-color: #f6f6f6;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #4154f1;
+            color: white;
+        }
+    </style>
+</head>
 
-                        String search = request.getParameter("search");          
-                        if ("null".equals(search)) {
-                            search = ""; // Chuyển đổi chuỗi "null" thành giá trị null thực sự
-                        }
+<body>
 
+    <header id="header" class="header fixed-top d-flex align-items-center bg-white shadow-sm" style="height: 60px; z-index: 997;">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="Home" class="logo d-flex align-items-center text-decoration-none px-4">
+                <span class="d-none d-lg-block text-primary fw-bold fs-4"><i class="fa fa-book me-2"></i>THI247 Admin</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn d-block d-lg-none fs-3 text-primary" style="cursor: pointer; margin-left: 10px;"></i>
+        </div>
 
-                        // Nếu filter (môn học) có giá trị
-                        if (filter == null || filter.equals("all")) {
-                            qbs = new ExamDAO().getAllSystemQuestion();
-                        } else {
-                            int subjectID = Integer.parseInt(filter);
-                            qbs = new ExamDAO().getAllSystemQuestionByID(subjectID);
-                        }
-
-                        // Nếu người dùng nhập từ khóa tìm kiếm
-                        if (search != null && !search.isEmpty()) {
-                            if (filter != null && !filter.equals("all")) {
-                                int subjectId = Integer.parseInt(filter);
-                                qbs = new ExamDAO().searchQuestionByNameAndSubjectID(search, subjectId);  // Tìm kiếm theo tên và môn học
-                            } else {
-                                qbs = new ExamDAO().searchQuestionByName(search);  // Tìm kiếm chỉ theo tên
-                            }
-                        }                     
-
-
-                        // Nhận pageSize từ request (hoặc gán giá trị mặc định)
-                        pageSizeParam = request.getParameter("pageSize");
-                        if ("all".equals(pageSizeParam)) {
-                            pageSize = qbs.size(); // Lấy tất cả
-                        } else {
-                            pageSize = (pageSizeParam != null && !pageSizeParam.isEmpty()) ? Integer.parseInt(pageSizeParam) : 10;
-                        }
-
-                        int totalPages = (int) Math.ceil((double) qbs.size() / pageSize);
-                        // Nhận pageNumber từ request (hoặc gán giá trị mặc định là trang 1)
-                        String pageNumberParam = request.getParameter("pageNumber");
-                        int pageNumber = (pageNumberParam != null && !pageNumberParam.isEmpty()) ? Integer.parseInt(pageNumberParam) : 1;
-
-                        // Tính toán chỉ số bắt đầu và kết thúc của câu hỏi trên trang hiện tại
-
-                        int startIndex = qbs.size() - (pageNumber * pageSize);
-                        int endIndex = qbs.size() - ((pageNumber - 1) * pageSize);
-
-                        // Điều chỉnh nếu startIndex bị âm
-                        if (startIndex < 0) {
-                            startIndex = 0;
-                        }
-
-                        // Lấy danh sách câu hỏi cần hiển thị cho trang hiện tại
-                        List<QuestionBank> questionsOnPage = qbs.subList(startIndex, endIndex);
-
-                        String context;
-                        String answer;
-                        for(int i = questionsOnPage.size() - 1; i >= 0; i--){
-                            QuestionBank qb = questionsOnPage.get(i);
-                            Subjects subject = new ExamDAO().getSubjectByID(qb.getSubjectId());
-                            if(qb.getQuestionContext().length() > 40){ 
-                                context = qb.getQuestionContext().substring(0, 40) + "...";
-                            }
-                            else if(qb.getQuestionContext().length() == 0){
-                                context = qb.getQuestionImg();
-                            }
-                            else context = qb.getQuestionContext();
-
-                            if(qb.getChoiceCorrect().startsWith("uploads/docreader")){
-                                answer = qb.getChoiceCorrect();
-                            }
-                            else{
-                                if(qb.getChoiceCorrect().length() > 40) 
-                                    answer = qb.getChoiceCorrect().substring(0, 40) + "...";
-                                else answer = qb.getChoiceCorrect();
-                            }
-                            String modalId = "threadModal" + i;
-                            String modalDetailId = "threadModalDetail" + i;
-                        %>
-                        <tr>
-                            <%
-                            if(context.startsWith("uploads/docreader")){
-                            %>
-                            <td><img src="<%=context%>" width="30%" height="30%" alt="alt"/></td>
-                                <%
-                                    }
-                                else{
-                                %>
-                            <td><p><%=context%></p></td>
-                            <%
-                                }
-                            %>
-                            <td><%=subject.getSubjectName()%></td>
-                            <%
-                            if(answer.startsWith("uploads/docreader")){
-                            %>
-                            <td><img src="<%=answer%>" width="50%" height="50%" alt="alt"/></td>
-                                <%
-                                    }
-                                else{
-                                %>
-                            <td><%=answer%></td>
-                            <%
-                                }
-                            %>
-                            <td style="display: flex; flex-direction: row; text-align: center;">
-                                <button
-                                    class="btn btn-primary"
-                                    type="button"
-                                    style="color: white"
-                                    data-toggle="modal"
-                                    data-target="#<%= modalDetailId %>"  
-                                    >
-                                    Xem chi tiết
-                                </button>
-                                <div class="modal fade" id="<%=modalDetailId%>" tabindex="-1" role="dialog" aria-labelledby="threadModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg" role="document">
-                                        <div class="modal-content" style="width: 80%; margin: auto">
-                                            <div class="modal-header d-flex align-items-center bg-primary text-white">
-                                                <h6 class="modal-title mb-0" id="threadModalLabel">Chi tiết câu hỏi</h6>
-                                            </div>
-                                            <div class="modal-body" style="text-align: left;"> 
-                                                <p style="font-weight: bold">Câu hỏi</p>
-                                                <p style="overflow-wrap:break-word;"><%=qb.getQuestionContext()%></p>
-                                                <%
-                                                if(qb.getQuestionImg() != null){
-                                                %>
-                                                <img src="<%=qb.getQuestionImg()%>" width="70%"/>
-                                                <%
-                                                    }
-                                                %>
-                                                <p style="font-weight: bold">Câu trả lời</p>
-                                                <%
-                                                if(qb.getChoice1().startsWith("uploads/docreader")){
-                                                %>
-                                                <br><span style="font-weight: bold">A. </span><img src="<%=qb.getChoice1()%>" height="30" alt="alt"/>
-                                                <%
-                                                    }
-                                                else{
-                                                %>
-                                                <p style="overflow-wrap:break-word;"><label style="font-weight: bold">A:</label> <%=qb.getChoice1()%></p>
-                                                <%
-                                                    }
-                                                %>
-                                                <%
-                                                if(qb.getChoice2().startsWith("uploads/docreader")){
-                                                %>
-                                                <br><span style="font-weight: bold">B. </span><img src="<%=qb.getChoice2()%>" height="30" alt="alt"/>
-                                                <%
-                                                    }
-                                                else{
-                                                %>
-                                                <p style="overflow-wrap:break-word;"><label style="font-weight: bold">B:</label> <%=qb.getChoice2()%></p>
-                                                <%
-                                                    }
-                                                %>
-                                                <%
-                                                if(qb.getChoice3().startsWith("uploads/docreader")){
-                                                %>
-                                                <br><span style="font-weight: bold">D. </span><img src="<%=qb.getChoice3()%>" height="30" alt="alt"/>
-                                                <%
-                                                    }
-                                                else{
-                                                %>
-                                                <p style="overflow-wrap:break-word;"><label style="font-weight: bold">C:</label> <%=qb.getChoice3()%></p>
-                                                <%
-                                                    }
-                                                %>
-                                                <%
-                                                if(qb.getChoiceCorrect().startsWith("uploads/docreader")){
-                                                %>
-                                                <br><span style="font-weight: bold">D. </span><img src="<%=qb.getChoiceCorrect()%>" height="30" alt="alt"/>
-                                                <%
-                                                    }
-                                                else{
-                                                %>
-                                                <p style="overflow-wrap:break-word;"><label style="font-weight: bold">D:</label> <%=qb.getChoiceCorrect()%></p>
-                                                <%
-                                                    }
-                                                %>
-                                                <%
-                                                if(qb.getChoiceCorrect().startsWith("uploads/docreader")){
-                                                %>
-                                                <br><span style="font-weight: bold">Đáp án: </span><img src="<%=qb.getChoiceCorrect()%>" height="30" alt="alt"/>
-                                                <%
-                                                    }
-                                                else{
-                                                %>
-                                                <p style="overflow-wrap:break-word;"><label style="font-weight: bold">Đáp án:</label> <%=qb.getChoiceCorrect()%></p>
-                                                <%
-                                                    }
-                                                %>
-                                                <p style="overflow-wrap:break-word;"><label style="font-weight: bold">Giải thích:</label> <%=qb.getExplain()%></p>
-                                                <%
-                                                if(qb.getExplainImg() != null){
-                                                %>
-                                                <img src="<%=qb.getExplainImg()%>" width="70%"/>
-                                                <%
-                                                    }
-                                                %>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <input type="button" class="btn btn-primary" data-dismiss="modal"value="Thoát">
-                                            </div>
-                                        </div> 
-                                    </div>                        
-                                </div>
-                                <div class="inner-sidebar-header justify-content-center">
-                                    <button
-                                        class="btn btn-primary"
-                                        style="background-color: red; color: white"
-                                        type="button"
-                                        data-toggle="modal"
-                                        data-target="#<%= modalId %>"  
-                                        >
-                                        Xoá Câu hỏi
-                                    </button>
-                                </div>
-
-                                <div class="modal fade" id="<%= modalId %>" tabindex="-1" role="dialog" aria-labelledby="threadModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg" role="document">
-                                        <div class="modal-content" style="width: 500px; margin: auto">
-                                            <form action="DeleteQuestionInBank" method="POST">
-                                                <input type="hidden" name="questionID" value="<%=qb.getQuestionId()%>">
-                                                <input type="hidden" name="subjectID" value="<%=subject.getSubjectID()%>">
-                                                <div class="modal-header d-flex align-items-center bg-primary text-white">
-                                                    <h6 class="modal-title mb-0" id="threadModalLabel">Xác nhận xóa câu hỏi?</h6>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="form-group">                       
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-light" data-dismiss="modal" >Hủy</button>
-                                                            <input type="submit" class="btn btn-primary" style="background-color: red" value="Xóa câu hỏi"/>
-                                                        </div>
-                                                    </div> 
-                                                </div>
-                                            </form>
-                                        </div> 
-                                    </div>                        
-                                </div>      
-                            </td>
-                        </tr>
-
-                        <%
-                            }
-                        %>
-                        <!--                ket thuc list all user-->
-
-
-                        <!--<tr>
-                                        <td>abc</td>
-                                        <td>getUserImg</td>
-                                        <td>getUsername</td>
-                                        <td>getFullname</td>
-                                        <td>getRole</td>
-                                        <td>redirect to profile</td>
-                                        <td><input type="submit" class="btn btn-primary" value="Unban"/></td>
-
-                                    </tr>-->
-                    </tbody>
-
-                </table>
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center m-0 p-0">
                 <%
-                    // Kiểm tra nếu qbs là rỗng
-                    if (qbs.size() == 0) {
+                    if(session.getAttribute("currentUser") != null){
+                        Users user = (Users)session.getAttribute("currentUser");
+                        // Logic role giữ nguyên
+                        TeacherRequest requests = new AdminDAO().getRequestByUserID(user.getUserID());
+                        Subjects subject = new Subjects();
+                        if(requests != null) subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
+                        String role;
+                        if(user.getRole() == 1) role = "Admin";
+                        else if(user.getRole() == 2) role = "Giáo viên";
+                        else role = "Học sinh";
                 %>
-                <div class="text-center" style="color: red; margin-top: 5%;">
-                    <h3>Không tìm thấy câu hỏi nào</h3>
-                </div>
-                <%
-                    } 
-                %>
-
-            </div>
-            <!-- Phân trang -->
-            <div class="d-flex justify-content-center my-4">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        <% 
-                            // Hiển thị trang đầu tiên nếu không phải là trang đầu tiên
-                            if (pageNumber > 1) { 
-                        %>
-                        <li class="page-item">
-                            <a class="page-link" href="view-all-question.jsp?pageSize=<%= pageSize %>&pageNumber=1&filter=<%= filter %>&search=<%= search %>">Trang đầu tiên</a>
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <img src="<%=user.getAvatarURL()%>" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                        <span class="d-none d-md-block dropdown-toggle ps-2 text-dark"><%=user.getUsername()%></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile shadow">
+                        <li class="dropdown-header text-center">
+                            <h6><%=user.getUsername()%></h6>
+                            <span><%=role%></span>
                         </li>
-                        <% } else { %>
-                        <li class="page-item disabled">
-                            <span class="page-link" style="background-color: #f0f0f0; color: #333;">Trang đầu tiên</span>
-                        </li>
-                        <% } %>
-
-                        <% 
-                            // Hiển thị trang trước nếu không phải là trang đầu tiên
-                            if (pageNumber > 1) { 
-                        %>
-                        <li class="page-item">
-                            <a class="page-link" href="view-all-question.jsp?pageSize=<%= pageSize %>&pageNumber=<%= pageNumber - 1 %>&filter=<%= filter %>&search=<%= search %>"><%= pageNumber - 1 %></a>
-                        </li>
-                        <% } %>
-
-                        <!-- Hiển thị trang hiện tại -->
-                        <li class="page-item disabled">
-                            <span class="page-link"  style="background-color: #f0f0f0; color: #333;"><%= pageNumber %></span>
-                        </li>
-
-                        <% 
-                            // Hiển thị trang tiếp theo nếu không phải là trang cuối cùng
-                            if (pageNumber < totalPages) { 
-                        %>
-                        <li class="page-item">
-                            <a class="page-link" href="view-all-question.jsp?pageSize=<%= pageSize %>&pageNumber=<%= pageNumber + 1 %>&filter=<%= filter %>&search=<%= search %>"><%= pageNumber + 1 %></a>
-                        </li>
-                        <% } %>
-
-                        <% 
-                            // Hiển thị trang cuối cùng nếu không phải là trang cuối
-                            if (pageNumber < totalPages) { 
-                        %>
-                        <li class="page-item">
-                            <a class="page-link" href="view-all-question.jsp?pageSize=<%= pageSize %>&pageNumber=<%= totalPages %>&filter=<%= filter %>&search=<%= search %>">Trang cuối cùng</a>
-                        </li>
-                        <% } else { %>
-                        <li class="page-item disabled">
-                            <span class="page-link" style="background-color: #f0f0f0; color: #333;">Trang cuối cùng</span>
-                        </li>
-                        <% } %>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item d-flex align-items-center" href="profile.jsp"><i class="bi bi-person"></i> <span>Thông tin</span></a></li>
+                        <li><a class="dropdown-item d-flex align-items-center" href="logout"><i class="bi bi-box-arrow-right"></i> <span>Đăng xuất</span></a></li>
                     </ul>
+                </li>
+                <% } %>
+            </ul>
+        </nav>
+    </header>
+
+    <aside id="sidebar" class="sidebar bg-white" style="position: fixed; top: 60px; left: 0; bottom: 0; width: 300px; z-index: 996; padding: 20px; box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1); overflow-y: auto;">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item"><a class="nav-link collapsed" href="admin.jsp"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="view-all-user.jsp"><i class="bi bi-people"></i><span>Quản lý người dùng</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="view-all-payment.jsp"><i class="bi bi-cash-stack"></i><span>Giao dịch hệ thống</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="view-all-exam.jsp"><i class="bi bi-journal-check"></i><span>Quản lí kiểm tra</span></a></li>
+            <li class="nav-item"><a class="nav-link bg-primary text-white" href="view-all-question.jsp"><i class="bi bi-question-square-fill"></i><span>Quản lí câu hỏi</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="notification.jsp"><i class="bi bi-bell"></i><span>Thông báo hệ thống</span></a></li>
+             <li class="nav-item mt-4">
+                <a class="nav-link collapsed rounded text-secondary" href="Home">
+                    <i class="bi bi-arrow-left-circle"></i> <span>Về trang chủ</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main id="main" class="main" style="margin-top: 60px; margin-left: 300px; padding: 20px 30px; transition: all 0.3s;">
+        
+        <div class="pagetitle d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold text-primary">Ngân hàng câu hỏi</h1>
+                <nav>
+                    <ol class="breadcrumb bg-transparent p-0 m-0">
+                        <li class="breadcrumb-item"><a href="admin.jsp">Home</a></li>
+                        <li class="breadcrumb-item active">Tất cả câu hỏi</li>
+                    </ol>
                 </nav>
             </div>
+            <a href="addquestionbank.jsp" class="btn btn-success shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i> Thêm câu hỏi mới
+            </a>
+        </div>
 
+        <div class="card mb-4">
+            <div class="card-body py-3">
+                <form method="GET" action="view-all-question.jsp" class="row g-3 align-items-end">
+                    
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-secondary small">Tìm kiếm câu hỏi</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                            <input type="text" name="search" class="form-control" placeholder="Nhập nội dung câu hỏi..." 
+                                   value="<%= request.getParameter("search") != null && !request.getParameter("search").equals("null") ? request.getParameter("search") : "" %>">
+                        </div>
+                    </div>
 
+                    <div class="col-md-3">
+                         <label class="form-label fw-bold text-secondary small">Lọc theo môn học</label>
+                         <div class="dropdown w-100">
+                            <button class="btn btn-outline-primary dropdown-toggle w-100 d-flex justify-content-between align-items-center" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <%
+                                    String filter = request.getParameter("filter");
+                                    if (filter == null) filter = "all";
+                                    String displayText = "Tất cả môn học";
+                                    if (filter != null && !filter.equals("all")) {
+                                        List<Subjects> subjectsList = new ExamDAO().getAllSubject();
+                                        for (Subjects s : subjectsList) {
+                                            if (String.valueOf(s.getSubjectID()).equals(filter)) {
+                                                displayText = s.getSubjectName();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                %>
+                                <%= displayText %>
+                            </button>
+                            <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton1">
+                                <li><a class="dropdown-item" href="?filter=all&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>&pageSize=<%= request.getParameter("pageSize") != null ? request.getParameter("pageSize") : "10" %>">Tất cả môn học</a></li>
+                                <%
+                                List<Subjects> subjects = new ExamDAO().getAllSubject();
+                                for (Subjects subject : subjects) {
+                                %>
+                                <li><a class="dropdown-item" href="?filter=<%= subject.getSubjectID() %>&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>&pageSize=<%= request.getParameter("pageSize") != null ? request.getParameter("pageSize") : "10" %>"><%= subject.getSubjectName() %></a></li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
 
+                    <div class="col-md-2">
+                        <%
+                            String pageSizeParam = request.getParameter("pageSize");
+                            int pageSize = 10;
+                            if (pageSizeParam != null && !pageSizeParam.isEmpty() && !pageSizeParam.equals("all")) {
+                                try { pageSize = Integer.parseInt(pageSizeParam); } catch (NumberFormatException e) { pageSize = 10; }
+                            }
+                        %>
+                        <label class="form-label fw-bold text-secondary small">Hiển thị</label>
+                        <select name="pageSize" class="form-select" onchange="this.form.submit()">
+                            <option value="10" <%= pageSize == 10 ? "selected" : "" %>>10 dòng</option>
+                            <option value="20" <%= pageSize == 20 ? "selected" : "" %>>20 dòng</option>
+                            <option value="30" <%= pageSize == 30 ? "selected" : "" %>>30 dòng</option>
+                            <option value="50" <%= pageSize == 50 ? "selected" : "" %>>50 dòng</option>
+                            <option value="all" <%= "all".equals(pageSizeParam) ? "selected" : "" %>>Tất cả</option>
+                        </select>
+                         <input type="hidden" name="filter" value="<%= request.getParameter("filter") != null ? request.getParameter("filter") : "all" %>">
+                    </div>
 
-        </main><!-- End #main -->
-        <script>
-            /* When the user clicks on the button, 
-             toggle between hiding and showing the dropdown content */
-            function dropdown() {
-                document.getElementById("myDropdown").classList.toggle("show");
-            }
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Lọc</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-            // Close the dropdown if the user clicks outside of it
-            window.onclick = function (event) {
-                if (!event.target.matches('.dropbtn')) {
-                    var dropdowns = document.getElementsByClassName("dropdown-content");
-                    var i;
-                    for (i = 0; i < dropdowns.length; i++) {
-                        var openDropdown = dropdowns[i];
-                        if (openDropdown.classList.contains('show')) {
-                            openDropdown.classList.remove('show');
-                        }
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle mt-3">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" style="width: 45%;">Nội dung câu hỏi</th>
+                                <th scope="col" style="width: 15%;">Môn học</th>
+                                <th scope="col" style="width: 25%;">Đáp án đúng</th>
+                                <th scope="col" style="width: 15%;">Tác vụ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%
+                                // --- LOGIC JAVA XỬ LÝ DỮ LIỆU ---
+                                List<QuestionBank> qbs = new ExamDAO().getAllSystemQuestion();
+                                // (Logic tìm kiếm và filter y hệt code gốc)
+                                String search = request.getParameter("search");
+                                if ("null".equals(search)) search = "";
+                                
+                                if (filter == null || filter.equals("all")) {
+                                    qbs = new ExamDAO().getAllSystemQuestion();
+                                } else {
+                                    int subjectID = Integer.parseInt(filter);
+                                    qbs = new ExamDAO().getAllSystemQuestionByID(subjectID);
+                                }
+
+                                if (search != null && !search.isEmpty()) {
+                                    if (filter != null && !filter.equals("all")) {
+                                        int subjectId = Integer.parseInt(filter);
+                                        qbs = new ExamDAO().searchQuestionByNameAndSubjectID(search, subjectId);
+                                    } else {
+                                        qbs = new ExamDAO().searchQuestionByName(search);
+                                    }
+                                }
+
+                                // Paging Logic
+                                pageSizeParam = request.getParameter("pageSize");
+                                if ("all".equals(pageSizeParam)) pageSize = qbs.size() > 0 ? qbs.size() : 1;
+                                else pageSize = (pageSizeParam != null && !pageSizeParam.isEmpty()) ? Integer.parseInt(pageSizeParam) : 10;
+
+                                int totalPages = (int) Math.ceil((double) qbs.size() / pageSize);
+                                String pageNumberParam = request.getParameter("pageNumber");
+                                int pageNumber = (pageNumberParam != null && !pageNumberParam.isEmpty()) ? Integer.parseInt(pageNumberParam) : 1;
+
+                                int startIndex = qbs.size() - (pageNumber * pageSize);
+                                int endIndex = qbs.size() - ((pageNumber - 1) * pageSize);
+                                if (startIndex < 0) startIndex = 0;
+                                if (endIndex > qbs.size()) endIndex = qbs.size(); // Safe check
+
+                                List<QuestionBank> questionsOnPage = new ArrayList<>();
+                                if (qbs.size() > 0 && startIndex < endIndex) {
+                                     questionsOnPage = qbs.subList(startIndex, endIndex);
+                                }
+                                
+                                // Rendering Loop
+                                String context;
+                                String answer;
+                                for(int i = questionsOnPage.size() - 1; i >= 0; i--){
+                                    QuestionBank qb = questionsOnPage.get(i);
+                                    Subjects subjectObj = new ExamDAO().getSubjectByID(qb.getSubjectId());
+                                    
+                                    // Xử lý text ngắn gọn
+                                    if(qb.getQuestionContext().length() > 60) context = qb.getQuestionContext().substring(0, 60) + "...";
+                                    else if(qb.getQuestionContext().length() == 0) context = qb.getQuestionImg();
+                                    else context = qb.getQuestionContext();
+
+                                    if(qb.getChoiceCorrect().startsWith("uploads/docreader")) answer = qb.getChoiceCorrect();
+                                    else {
+                                        if(qb.getChoiceCorrect().length() > 40) answer = qb.getChoiceCorrect().substring(0, 40) + "...";
+                                        else answer = qb.getChoiceCorrect();
+                                    }
+                                    
+                                    String modalDetailId = "detailModal" + i;
+                                    String modalDeleteId = "deleteModal" + i;
+                            %>
+                            <tr>
+                                <td>
+                                    <% if(context.startsWith("uploads/docreader")){ %>
+                                        <img src="<%=context%>" class="img-thumb-question" alt="Question Image"/>
+                                    <% } else { %>
+                                        <span class="fw-bold text-dark"><%=context%></span>
+                                    <% } %>
+                                </td>
+                                
+                                <td class="text-center"><span class="badge bg-light text-dark border"><%=subjectObj.getSubjectName()%></span></td>
+                                
+                                <td>
+                                    <% if(answer.startsWith("uploads/docreader")){ %>
+                                        <img src="<%=answer%>" class="img-thumb-question" alt="Answer Image"/>
+                                    <% } else { %>
+                                        <span class="text-success fw-bold"><%=answer%></span>
+                                    <% } %>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-primary btn-action" data-bs-toggle="modal" data-bs-target="#<%= modalDetailId %>" title="Xem chi tiết">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#<%= modalDeleteId %>" title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+
+                                    <div class="modal fade" id="<%=modalDetailId%>" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                            <div class="modal-content">
+                                                <div class="modal-header bg-primary text-white">
+                                                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Chi tiết câu hỏi</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body text-start p-4">
+                                                    <h6 class="fw-bold text-primary">Câu hỏi:</h6>
+                                                    <p class="mb-2"><%=qb.getQuestionContext()%></p>
+                                                    <% if(qb.getQuestionImg() != null){ %>
+                                                        <div class="mb-3"><img src="<%=qb.getQuestionImg()%>" class="img-fluid rounded border" style="max-height: 200px;"></div>
+                                                    <% } %>
+                                                    
+                                                    <hr>
+                                                    <h6 class="fw-bold text-primary">Các lựa chọn:</h6>
+                                                    <div class="row g-2">
+                                                        <div class="col-md-6">
+                                                            <div class="p-2 border rounded bg-light">
+                                                                <span class="fw-bold text-secondary">A.</span> 
+                                                                <% if(qb.getChoice1().startsWith("uploads")){ %> <img src="<%=qb.getChoice1()%>" height="30"> <% } else { %> <%=qb.getChoice1()%> <% } %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="p-2 border rounded bg-light">
+                                                                <span class="fw-bold text-secondary">B.</span> 
+                                                                <% if(qb.getChoice2().startsWith("uploads")){ %> <img src="<%=qb.getChoice2()%>" height="30"> <% } else { %> <%=qb.getChoice2()%> <% } %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="p-2 border rounded bg-light">
+                                                                <span class="fw-bold text-secondary">C.</span> 
+                                                                <% if(qb.getChoice3().startsWith("uploads")){ %> <img src="<%=qb.getChoice3()%>" height="30"> <% } else { %> <%=qb.getChoice3()%> <% } %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="p-2 border rounded bg-light">
+                                                                <span class="fw-bold text-secondary">D.</span> 
+                                                                <% if(qb.getChoiceCorrect().startsWith("uploads")){ %> <img src="<%=qb.getChoiceCorrect()%>" height="30"> <% } else { %> <%=qb.getChoiceCorrect()%> <% } %>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="alert alert-success mt-3 mb-0">
+                                                        <strong><i class="bi bi-check-circle-fill"></i> Đáp án đúng:</strong> 
+                                                        <% if(qb.getChoiceCorrect().startsWith("uploads")){ %> <img src="<%=qb.getChoiceCorrect()%>" height="30"> <% } else { %> <%=qb.getChoiceCorrect()%> <% } %>
+                                                        <br>
+                                                        <strong>Giải thích:</strong> <%=qb.getExplain()%>
+                                                        <% if(qb.getExplainImg() != null){ %> <br><img src="<%=qb.getExplainImg()%>" height="100" class="mt-2 rounded"> <% } %>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="<%= modalDeleteId %>" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <form action="DeleteQuestionInBank" method="POST">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Xác nhận xóa</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body text-center py-4">
+                                                        <p class="mb-0 fs-5">Bạn có chắc chắn muốn xóa câu hỏi này không?</p>
+                                                        <small class="text-muted">Hành động này không thể hoàn tác.</small>
+                                                        <input type="hidden" name="questionID" value="<%=qb.getQuestionId()%>">
+                                                        <input type="hidden" name="subjectID" value="<%=subjectObj.getSubjectID()%>">
+                                                    </div>
+                                                    <div class="modal-footer justify-content-center">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy bỏ</button>
+                                                        <button type="submit" class="btn btn-danger">Xóa ngay</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+
+                    <% if (qbs.isEmpty()) { %>
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">Không tìm thấy dữ liệu câu hỏi nào.</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <% if (!qbs.isEmpty()) { %>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <%= (pageNumber <= 1) ? "disabled" : "" %>">
+                            <a class="page-link" href="?pageSize=<%= pageSize %>&pageNumber=1&filter=<%= filter %>&search=<%= search %>">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item <%= (pageNumber <= 1) ? "disabled" : "" %>">
+                            <a class="page-link" href="?pageSize=<%= pageSize %>&pageNumber=<%= pageNumber - 1 %>&filter=<%= filter %>&search=<%= search %>">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        <li class="page-item active">
+                            <span class="page-link"><%= pageNumber %> / <%= totalPages %></span>
+                        </li>
+
+                        <li class="page-item <%= (pageNumber >= totalPages) ? "disabled" : "" %>">
+                            <a class="page-link" href="?pageSize=<%= pageSize %>&pageNumber=<%= pageNumber + 1 %>&filter=<%= filter %>&search=<%= search %>">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                         <li class="page-item <%= (pageNumber >= totalPages) ? "disabled" : "" %>">
+                            <a class="page-link" href="?pageSize=<%= pageSize %>&pageNumber=<%= totalPages %>&filter=<%= filter %>&search=<%= search %>">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <% } %>
+
+            </div>
+        </div>
+
+    </main>
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="position: fixed; width: 40px; height: 40px; bottom: 15px; right: 15px; z-index: 99999;">
+        <i class="bi bi-arrow-up-short fs-4"></i>
+    </a>
+
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const toggleBtn = document.querySelector('.toggle-sidebar-btn');
+            if(toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('toggle-sidebar');
+                    const main = document.querySelector('#main');
+                    const sidebar = document.querySelector('#sidebar');
+                    
+                    if(document.body.classList.contains('toggle-sidebar')){
+                        sidebar.style.left = '-300px';
+                        main.style.marginLeft = '0';
+                    } else {
+                        sidebar.style.left = '0';
+                         if(window.innerWidth >= 1200) {
+                             main.style.marginLeft = '300px';
+                         }
                     }
-                }
-            };
-        </script>
-
-
-        <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-        <!-- Vendor JS Files -->
-        <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
-        <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="assets/vendor/chart.js/chart.umd.js"></script>
-        <script src="assets/vendor/echarts/echarts.min.js"></script>
-        <script src="assets/vendor/quill/quill.js"></script>
-        <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
-        <script src="assets/vendor/tinymce/tinymce.min.js"></script>
-        <script src="assets/vendor/php-email-form/validate.js"></script>
-
-
-        <!-- Template Main JS File -->
-        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
-        <script type="text/javascript"></script>
+                });
+            }
+        });
+    </script>
+</body>
+</html>

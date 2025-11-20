@@ -17,10 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.QuestionBank;
 
-/**
- *
- * @author Admin
- */
+
 @WebServlet(name="QuestionList", urlPatterns={"/QuestionList"})
 public class QuestionList extends HttpServlet {
    

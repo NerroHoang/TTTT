@@ -14,10 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.StudentChoice;
 
-/**
- *
- * @author GoldCandy
- */
+
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,       // 10MB
                  maxRequestSize = 1024 * 1024 * 50)    // 50MB

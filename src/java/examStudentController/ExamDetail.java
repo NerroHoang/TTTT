@@ -18,10 +18,7 @@ import model.Exam;
 import model.Tests;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class ExamDetail extends HttpServlet {
 
     /**

@@ -4,10 +4,7 @@
  */
 package model;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class Exam {
     private int examID;
     private String examName;

@@ -16,10 +16,7 @@ import DAO.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class ChangePassword extends HttpServlet {
 
     /**

@@ -17,10 +17,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import model.Task;
 
-/**
- *
- * @author sonhu
- */
+
 @WebServlet("/createTask")
 public class createTask extends HttpServlet {
 
@@ -63,27 +60,41 @@ public class createTask extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    response.setContentType("text/html;charset=UTF-8");
 
-        HttpSession session = request.getSession();
-        Users user = (Users) session.getAttribute("currentUser");
+    HttpSession session = request.getSession();
+    Users user = (Users) session.getAttribute("currentUser");
 
-        if (user == null) {
-            response.sendRedirect("login.jsp");
+    if (user == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
+    String taskContext = request.getParameter("taskContext");
+    String taskDateStr = request.getParameter("taskDate");
+    String taskTimeStr = request.getParameter("taskTime");
+
+    try {
+
+        // ==== CHẶN NGÀY QUÁ KHỨ ====
+        // Convert date + time -> LocalDateTime để so sánh
+        java.time.LocalDate taskDate = java.time.LocalDate.parse(taskDateStr);
+        java.time.LocalTime taskTime = java.time.LocalTime.parse(taskTimeStr);
+        java.time.LocalDateTime inputDateTime = java.time.LocalDateTime.of(taskDate, taskTime);
+
+        java.time.LocalDateTime currentDateTime = java.time.LocalDateTime.now();
+
+        if (inputDateTime.isBefore(currentDateTime)) {
+            request.setAttribute("error", "⚠ Không thể chọn ngày hoặc giờ trong quá khứ!");
+            request.getRequestDispatcher("schedule.jsp").forward(request, response);
             return;
         }
 
-        String taskContext = request.getParameter("taskContext");
-        String taskDateStr = request.getParameter("taskDate");
-        String taskTimeStr = request.getParameter("taskTime");
-        
-        System.out.println(taskDateStr + " " + taskTimeStr);
-        
-        Timestamp taskDeadline = Timestamp.valueOf(taskDateStr + " " + taskTimeStr + ":00");
-        
-        System.out.println(taskDeadline.toString());
+        // Nếu hợp lệ -> convert sang Timestamp
+        Timestamp taskDeadline = Timestamp.valueOf(inputDateTime);
+
         Task newTask = new Task(user.getUserID(), taskContext, taskDeadline);
 
         TaskDAO taskDAO = new TaskDAO();
@@ -91,8 +102,18 @@ public class createTask extends HttpServlet {
 
         if (success) {
             response.sendRedirect("schedule.jsp");
+        } else {
+            request.setAttribute("error", "❌ Không thể tạo task. Vui lòng thử lại.");
+            request.getRequestDispatcher("schedule.jsp").forward(request, response);
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        request.setAttribute("error", "❌ Lỗi định dạng ngày giờ.");
+        request.getRequestDispatcher("schedule.jsp").forward(request, response);
     }
+}
+
 
     /**
      * Returns a short description of the servlet.

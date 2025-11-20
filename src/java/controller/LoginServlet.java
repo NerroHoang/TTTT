@@ -17,10 +17,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.Users;
 
-/**
- *
- * @author ADMIN
- */
+
 public class LoginServlet extends HttpServlet {
 
     private static final String SUCCESS_USER = "Home";

@@ -8,10 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.*;
-/**
- *
- * @author Admin
- */
+
 public class UserIPHistoryDAO extends DBConnection{
     
     private Connection conn;

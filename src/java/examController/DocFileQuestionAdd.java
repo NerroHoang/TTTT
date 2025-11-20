@@ -32,10 +32,7 @@ import org.apache.poi.xwpf.usermodel.XWPFPicture;
 import org.apache.poi.xwpf.usermodel.XWPFPictureData;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 
-/**
- *
- * @author GoldCandy
- */
+
 @MultipartConfig
 public class DocFileQuestionAdd extends HttpServlet {
 

@@ -16,10 +16,7 @@ import java.sql.Timestamp;
 import model.Task;
 import model.Users;
 
-/**
- *
- * @author sonhu
- */
+
 @WebServlet(name = "editTask", urlPatterns = {"/editTask"})
 public class editTask extends HttpServlet {
 

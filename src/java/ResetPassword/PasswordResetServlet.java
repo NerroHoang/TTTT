@@ -16,10 +16,7 @@ import DAO.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author sonhu
- */
+
 @WebServlet("/PasswordResetServlet")
 public class PasswordResetServlet extends HttpServlet {
   

@@ -17,10 +17,7 @@ import model.QuestionBank;
 import model.Subjects;
 import model.Tests;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class ExamDAO extends DBConnection {
 
     public List<Exam> searchExamsByKeyword(String keyword) {

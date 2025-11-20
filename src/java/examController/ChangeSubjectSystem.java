@@ -15,10 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.QuestionBank;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class ChangeSubjectSystem extends HttpServlet {
 
     /**

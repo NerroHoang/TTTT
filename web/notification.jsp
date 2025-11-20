@@ -3,220 +3,253 @@
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="java.text.NumberFormat"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
-<html lang="en">
+<html lang="vi">
 
-    <head>
-        <meta charset="utf-8">
-        <title>HCV</title>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <meta content="" name="keywords">
-        <meta content="" name="description">
+<head>
+    <meta charset="utf-8">
+    <title>THI247 - Quản lý thông báo</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-        <!-- Favicon -->
-        <link href="img/THI247.png" rel="icon">
+    <link href="img/THI247.png" rel="icon">
 
-        <!-- Google Web Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-        <!-- Icon Font Stylesheet -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            />
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Libraries Stylesheet -->
-        <link href="lib/animate/animate.min.css" rel="stylesheet">
-        <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="assets/css/admin-css.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f6f9ff;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        /* Xử lý layout main content để không bị sidebar che */
+        #main {
+            margin-top: 60px; /* Chiều cao header */
+            padding: 20px 30px;
+            transition: all 0.3s;
+        }
 
-        <!-- Customized Bootstrap Stylesheet -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        @media (min-width: 1200px) {
+            #main {
+                margin-left: 300px; /* Chiều rộng sidebar */
+            }
+        }
 
-        <!-- Template Stylesheet -->
-        <link href="assets/css/admin-css.css" rel="stylesheet">
-    </head>
-    <body>
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css"
-            integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o="
-            crossorigin="anonymous"
-            />
-        <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
-            <a href="Home" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
-                <h2 class="m-0 text-primary"><i class="fa fa-book me-3"></i>HCV</h2>
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #ebeef4;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            border-color: #4154f1;
+        }
+
+        /* Animation cho nút */
+        .btn-custom {
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="header" class="header fixed-top d-flex align-items-center bg-white shadow-sm" style="height: 60px; z-index: 997;">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="Home" class="logo d-flex align-items-center text-decoration-none px-4">
+                <span class="d-none d-lg-block text-primary fw-bold fs-4"><i class="fa fa-book me-2"></i>THI247 Admin</span>
             </a>
-            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <div class="navbar-nav ms-auto p-4 p-lg-0" id="tagID">
-                    <a href="Home" class="nav-item nav-link tag active">Trang Chủ</a>
-                    <a href="forum.jsp" class="nav-item nav-link tag">Diễn Đàn</a>
-                    <a href="teacher.jsp" class="nav-item nav-link tag">Kiểm Tra</a>
-                    <a href="schedule.jsp" class="nav-item nav-link tag">Thời gian biểu</a>
-                    <%
-                        if(session.getAttribute("currentUser") == null){
-                    %>
-                    <a href="login.jsp" class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">Tham gia ngay<i class="fa fa-arrow-right ms-3"></i></a> 
-                        <%
-                            }
-                            else{
-                            Users user = (Users)session.getAttribute("currentUser");
-                            TeacherRequest requests = new AdminDAO().getRequestByUserID(user.getUserID());
-                            Subjects subject = new Subjects();
-                            if(requests != null)
-                                subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
-                            String role;
-                            if(user.getRole() == 1) role = "Admin";
-                            else if(user.getRole() == 2) role = "Giáo viên";
-                            else role = "Học sinh";
-                        %>
-                    <a href="recharge.jsp" class="nav-item nav-link tag">
-                        <i class="fas fa-coins"></i>
-                        <span id="user-balance"><%=user.getBalance()%></span> 
-                        <i class="fas fa-plus-circle"></i> 
-                    </a>
-                </div>
-                <li class="nav-item dropdown pe-3 no">
-                    <style>
-                        .no{
-                            display: block;
-                        }
-                    </style>
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="<%=user.getAvatarURL()%>" alt="Profile" width="50" height="50" class="rounded-circle">
-                        <span class="d-none d-md-block dropdown-toggle ps-2"><%=user.getUsername()%></span>
-                    </a><!-- End Profile Iamge Icon -->
+            <i class="bi bi-list toggle-sidebar-btn d-block d-lg-none fs-3 text-primary" style="cursor: pointer; margin-left: 10px;"></i>
+        </div>
 
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6><%=user.getUsername()%></h6>
-                            <span><%=role%> <%if(user.getRole() == 2){%>môn <%=subject.getSubjectName()%><% }%></span>
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center m-0 p-0">
+                <%
+                if(session.getAttribute("currentUser") != null){
+                    Users user = (Users)session.getAttribute("currentUser");
+                    // Logic xử lý role giữ nguyên
+                    TeacherRequest requests = new AdminDAO().getRequestByUserID(user.getUserID());
+                    Subjects subject = new Subjects();
+                    if(requests != null) subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
+                    
+                    String role;
+                    if(user.getRole() == 1) role = "Admin";
+                    else if(user.getRole() == 2) role = "Giáo viên";
+                    else role = "Học sinh";
+                %>
+                
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <img src="<%=user.getAvatarURL()%>" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                        <span class="d-none d-md-block dropdown-toggle ps-2 text-dark"><%=user.getUsername()%></span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile shadow">
+                        <li class="dropdown-header text-center">
+                            <h6 class="mb-1"><%=user.getUsername()%></h6>
+                            <span class="badge bg-primary"><%=role%> <%if(user.getRole() == 2){%> - <%=subject.getSubjectName()%><% }%></span>
                         </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <%
-                        if(user.getRole() == 1){
-                        %>
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        <% if(user.getRole() == 1){ %>
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="admin.jsp">
-                                <i class="bi bi-person"></i>
-                                <span>Quản lý</span>
+                                <i class="bi bi-grid me-2"></i> <span>Quản trị</span>
                             </a>
                         </li>
-                        <%
-                            }
-                        %>
+                        <% } %>
 
                         <li>
                             <a class="dropdown-item d-flex align-items-center" href="profile.jsp">
-                                <i class="bi bi-person"></i>
-                                <span>Thông tin</span>
+                                <i class="bi bi-person me-2"></i> <span>Hồ sơ</span>
                             </a>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="logout">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
+                            <a class="dropdown-item d-flex align-items-center text-danger" href="logout">
+                                <i class="bi bi-box-arrow-right me-2"></i> <span>Đăng xuất</span>
                             </a>
                         </li>
-
-                    </ul><!-- End Profile Dropdown Items -->
+                    </ul>
                 </li>
-                <%
-                    }
-                %>
-            </div>
-        </nav>
-        <!-- Navbar End -->
-
-        <aside id="sidebar" class="sidebar">
-            <ul class="sidebar-nav" id="sidebar-nav">
-                <li class="nav-item">
-                    <a class="nav-link collapsed"  href="admin.jsp">
-                        <i class="bi bi-grid"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li><!-- End Dashboard Nav -->
-
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-user.jsp">
-                        <i class="bi bi-person"></i>
-                        <span>Tất cả người dùng</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-payment.jsp">
-                        <i class="bi bi-cash-stack"></i><span>Giao dịch trong hệ thống</span>
-                    </a>
-                </li><!-- End Tables Nav -->
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-exam.jsp">
-                        <i class="bi bi-journal-check"></i><span>Quản lí kiểm tra</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-question.jsp">
-                        <i class="bi bi-question-square"></i><span>Quản lí câu hỏi</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="notification.jsp">
-                        <i class="bi bi-bell"></i><span>Thông báo hệ thống</span>
-                    </a>
-                </li>
-                <!-- End Icons Nav -->
+                <% } else { %>
+                    <li class="nav-item pe-3">
+                        <a href="login.jsp" class="btn btn-sm btn-primary">Đăng nhập</a>
+                    </li>
+                <% } %>
             </ul>
-        </aside><!-- End Sidebar-->
-        <br><br><br><br>
-        
-        <button class="btn btn-primary" style="margin-left: 350px">
-            <a style="color: white" href="ListAllNotification.jsp">Xem danh sách thông báo</a>
-        </button>
-        
-        <div class="row">
-            <div class="col-lg-12" style="width: 1000px; margin: auto; margin-top: 20px; margin-left: 350px">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="text-primary">Thông báo hệ thống</h4>
-                        <!-- Browser Default Validation -->
-                        <form action="AddNotification" method="POST" class="row g-3">     
-                            <div class="col-md-12">
-                                <label class="form-label">Nhập thông báo</label>
-                                <input type="text" class="form-control" name="notificationName" id="validationDefault03" required>
-                            </div>
-<!--                            <div class="col-md-12">
-                                <label class="form-label">Thời gian</label>
-                                <input type="date" class="form-control" id="validationDefault03" required>
-                            </div>-->
-                            <div class="col-12">
-                                <button style="margin: auto" class="btn btn-primary" type="submit">Xác nhận</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        </nav>
+    </header>
 
+    <aside id="sidebar" class="sidebar bg-white" style="position: fixed; top: 60px; left: 0; bottom: 0; width: 300px; z-index: 996; transition: all 0.3s; padding: 20px; box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1); overflow-y: auto;">
+        <ul class="sidebar-nav list-unstyled" id="sidebar-nav">
+            <li class="nav-item mb-2">
+                <a class="nav-link collapsed rounded" href="admin.jsp">
+                    <i class="bi bi-grid"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link collapsed rounded" href="view-all-user.jsp">
+                    <i class="bi bi-people"></i> <span>Quản lý người dùng</span>
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link collapsed rounded" href="view-all-payment.jsp">
+                    <i class="bi bi-cash-stack"></i> <span>Giao dịch hệ thống</span>
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link collapsed rounded" href="view-all-exam.jsp">
+                    <i class="bi bi-journal-check"></i> <span>Quản lý bài kiểm tra</span>
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link collapsed rounded" href="view-all-question.jsp">
+                    <i class="bi bi-question-square"></i> <span>Ngân hàng câu hỏi</span>
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link rounded bg-primary text-white" href="notification.jsp">
+                    <i class="bi bi-bell-fill"></i> <span>Thông báo hệ thống</span>
+                </a>
+            </li>
+             <li class="nav-item mt-4">
+                <a class="nav-link collapsed rounded text-secondary" href="Home">
+                    <i class="bi bi-arrow-left-circle"></i> <span>Về trang chủ</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main id="main" class="main">
+        
+        <div class="pagetitle mb-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="text-primary fw-bold">Tạo Thông Báo Mới</h1>
+                <nav>
+                    <ol class="breadcrumb bg-transparent p-0 m-0">
+                        <li class="breadcrumb-item"><a href="admin.jsp">Admin</a></li>
+                        <li class="breadcrumb-item active">Thông báo</li>
+                    </ol>
+                </nav>
             </div>
-        </div>    
-    </div>    
+            
+            <a href="ListAllNotification.jsp" class="btn btn-outline-primary btn-custom">
+                <i class="bi bi-list-ul me-1"></i> Xem danh sách thông báo
+            </a>
+        </div>
 
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-    <style>
-        
-        
-        
-    </style>
-    <!-- Vendor JS Files -->
-    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+        <section class="section">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center">
+                            <i class="bi bi-pencil-square text-primary fs-4 me-2"></i>
+                            <h5 class="card-title m-0 fw-bold text-dark">Nội dung thông báo</h5>
+                        </div>
+                        
+                        <div class="card-body pt-4">
+                            <form action="AddNotification" method="POST" class="needs-validation" novalidate>
+                                
+                                <div class="mb-4">
+                                    <div class="form-floating">
+                                        <textarea 
+                                            class="form-control" 
+                                            placeholder="Nhập nội dung thông báo tại đây" 
+                                            id="notificationContent" 
+                                            name="notificationName" 
+                                            style="height: 150px" 
+                                            required></textarea>
+                                        <label for="notificationContent">Nội dung chi tiết</label>
+                                    </div>
+                                    <div class="form-text text-muted">
+                                        Thông báo này sẽ được gửi đến toàn bộ người dùng trong hệ thống.
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="reset" class="btn btn-light btn-lg px-4 me-md-2">Làm mới</button>
+                                    <button type="submit" class="btn btn-primary btn-lg px-5 btn-custom">
+                                        <i class="bi bi-send-fill me-2"></i> Gửi thông báo
+                                    </button>
+                                </div>
+                                
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="position: fixed; width: 40px; height: 40px; bottom: 15px; right: 15px; z-index: 99999;">
+        <i class="bi bi-arrow-up-short fs-4"></i>
+    </a>
+
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="assets/vendor/chart.js/chart.umd.js"></script>
     <script src="assets/vendor/echarts/echarts.min.js"></script>
     <script src="assets/vendor/quill/quill.js"></script>
@@ -224,14 +257,21 @@
     <script src="assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="assets/vendor/php-email-form/validate.js"></script>
 
-    <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
 
-
-
-
-
-
-
-
-
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const toggleBtn = document.querySelector('.toggle-sidebar-btn');
+            const sidebar = document.querySelector('#sidebar');
+            const main = document.querySelector('#main');
+            
+            if(toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('toggle-sidebar');
+                    // Nếu bạn cần xử lý CSS thủ công (thường main.js của template NiceAdmin đã làm việc này)
+                });
+            }
+        });
+    </script>
+</body>
+</html>

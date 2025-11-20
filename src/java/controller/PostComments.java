@@ -17,10 +17,6 @@ import jakarta.servlet.http.Part;
 import java.io.File;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,       // 10MB

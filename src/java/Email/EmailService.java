@@ -4,10 +4,6 @@
  */
 package Email;
 
-/**
- *
- * @author Dai Nhan
- */
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;

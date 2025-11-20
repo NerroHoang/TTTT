@@ -4,10 +4,7 @@
  */
 package model;
 
-/**
- *
- * @author ASUS
- */
+
 public class ReportReason {
     private int reasonId;
     private String reasonName;

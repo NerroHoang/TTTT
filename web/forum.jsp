@@ -10,10 +10,12 @@
     </script>
 
     <style type="text/css">
+        /* ==================== CẬP NHẬT MÀU NỀN THEO YÊU CẦU ==================== */
         body {
             color: #1a202c;
             text-align: left;
-            background-color: #e2e8f0;
+            /* Màu xanh nhạt hơn, lấy cảm hứng từ màu chữ "THI247" */
+            background-color: #e0f2f7; 
         }
 
         .inner-wrapper {
@@ -21,6 +23,23 @@
             height: calc(100vh - 3.5rem);
             transition: transform 0.3s;
         }
+
+        .inner-sidebar {
+            left: 0;
+            width: 235px;
+            border-right: 1px solid #cbd5e0;
+            /* Giữ màu xám như code ban đầu */
+            background-color: #e2e8f0; 
+            z-index: 1;
+        }
+        
+        .inner-main-footer,
+        .inner-main-header {
+            /* Giữ màu trắng cho header/footer nội dung chính */
+            background-color: #fff;
+        }
+        /* ====================================================================== */
+        
         @media (min-width: 992px) {
             .sticky-navbar .inner-wrapper {
                 height: calc(100vh - 3.5rem - 48px);
@@ -45,13 +64,7 @@
             display: flex;
             flex-direction: column;
         }
-        .inner-sidebar {
-            left: 0;
-            width: 235px;
-            border-right: 1px solid #cbd5e0;
-            background-color: #fff;
-            z-index: 1;
-        }
+
         .inner-main {
             right: 0;
             left: 235px;
@@ -78,10 +91,7 @@
         .inner-sidebar-body .sticky-top {
             z-index: 999;
         }
-        .inner-main-footer,
-        .inner-main-header {
-            background-color: #fff;
-        }
+        
         .inner-main-footer,
         .inner-sidebar-footer {
             border-top: 1px solid #cbd5e0;
@@ -338,40 +348,39 @@
                 </div>
 
                 <div class="inner-main-body p-2 p-sm-3 collapse forum-content show">
-                    <!-- bai post -->
-                <%
+                    <%
                     List<Forum> forums = new ForumDAO().getAllPost();
                     boolean check;
                     for (int i = forums.size() - 1; i >= 0; i--) {
-                      check = true;
-                      Forum forum = forums.get(i);
-                      Users user = new UserDAO().findByUserID(forum.getUserID());
-                      if(session.getAttribute("currentUser") != null){
+                     check = true;
+                     Forum forum = forums.get(i);
+                     Users user = new UserDAO().findByUserID(forum.getUserID());
+                     if(session.getAttribute("currentUser") != null){
                         Users realUser = (Users)session.getAttribute("currentUser");
                         if(realUser.getUserID() == user.getUserID()){
-                            check = true;
+                             check = true;
                         }
                         else check = false;
-                      }
-                      String str;
-                      String title;
-                      if(forum.getPostContext().length() > 150){ 
-                          str = forum.getPostContext().substring(0, 150) + "...";
-                      }
-                      else {
-                          str = forum.getPostContext();
-                      }
-                      if(forum.getPostTitle().length() > 100){ 
-                          title = forum.getPostTitle().substring(0, 100) + "...";
-                      }
-                      else {
-                          title = forum.getPostTitle();
-                      }
+                     }
+                     String str;
+                     String title;
+                     if(forum.getPostContext().length() > 150){ 
+                         str = forum.getPostContext().substring(0, 150) + "...";
+                     }
+                     else {
+                         str = forum.getPostContext();
+                     }
+                     if(forum.getPostTitle().length() > 100){ 
+                         title = forum.getPostTitle().substring(0, 100) + "...";
+                     }
+                     else {
+                         title = forum.getPostTitle();
+                     }
                 %>
                 <div class="card mb-2 all">
                     <div class="card-body p-2 p-sm-3 ">
                         <%
-                              if(check == false){
+                                 if(check == false){
                         %>
                         <div class="media forum-item" style="float: right;" class="dropbtn"> 
                             <div class="dropdown">
@@ -423,45 +432,45 @@
                                                 <div class="form-group">
                                                     <label for="threadTitle">Lý do báo cáo</label>
                                                     <div class="checkbox-group" style="
-                                                         display: flex;
-                                                         flex-wrap: wrap;
-                                                         gap: 10px; /* Khoảng cách giữa các checkbox */
-                                                         margin-top: 20px;">
-                                                        <label class="checkbox-container" style="width: 30%;">
-                                                            <input type="checkbox" name="reasons" value="1"/>
-                                                            <span class="checkmark"></span>
-                                                            Lạm dụng ngôn từ
-                                                        </label>
-                                                        <label class="checkbox-container" style="width: 30%;">
-                                                            <input type="checkbox" name="reasons" value="2"/>
-                                                            <span class="checkmark"></span>
-                                                            Hành vi gây rối diễn đàn
-                                                        </label>
-                                                        <label class="checkbox-container" style="width: 30%;">
-                                                            <input type="checkbox" name="reasons" value="3"/>
-                                                            <span class="checkmark"></span>
-                                                            Tạo bài đăng sai mục đích 
-                                                        </label>
-                                                        <label class="checkbox-container" style="width: 30%;">
-                                                            <input type="checkbox" name="reasons" value="4"/>
-                                                            <span class="checkmark"></span>
-                                                            Bài đăng Không liên quan 
-                                                        </label>
-                                                        <label class="checkbox-container" style="width: 30%;">
-                                                            <input type="checkbox" name="reasons" value="5"/>
-                                                            <span class="checkmark"></span>
-                                                            Spam Bình luận quảng cáo trong diễn đàn 
-                                                        </label>
-                                                        <label class="checkbox-container" style="width: 30%;">
-                                                            <input type="checkbox" name="reasons" value="6"/>
-                                                            <span class="checkmark"></span>
-                                                            Bình luận mang tính phản cảm
-                                                        </label>
-                                                        <label class="checkbox-container" style="width: 30%;">
-                                                            <input type="checkbox" name="reasons" value="7" class="reason-checkbox"/>
-                                                            <span class="checkmark"></span>
-                                                            lý do báo cáo khác
-                                                        </label>
+                                                        display: flex;
+                                                        flex-wrap: wrap;
+                                                        gap: 10px; /* Khoảng cách giữa các checkbox */
+                                                        margin-top: 20px;">
+                                                         <label class="checkbox-container" style="width: 30%;">
+                                                             <input type="checkbox" name="reasons" value="1"/>
+                                                             <span class="checkmark"></span>
+                                                             Lạm dụng ngôn từ
+                                                         </label>
+                                                         <label class="checkbox-container" style="width: 30%;">
+                                                             <input type="checkbox" name="reasons" value="2"/>
+                                                             <span class="checkmark"></span>
+                                                             Hành vi gây rối diễn đàn
+                                                         </label>
+                                                         <label class="checkbox-container" style="width: 30%;">
+                                                             <input type="checkbox" name="reasons" value="3"/>
+                                                             <span class="checkmark"></span>
+                                                             Tạo bài đăng sai mục đích 
+                                                         </label>
+                                                         <label class="checkbox-container" style="width: 30%;">
+                                                             <input type="checkbox" name="reasons" value="4"/>
+                                                             <span class="checkmark"></span>
+                                                             Bài đăng Không liên quan 
+                                                         </label>
+                                                         <label class="checkbox-container" style="width: 30%;">
+                                                             <input type="checkbox" name="reasons" value="5"/>
+                                                             <span class="checkmark"></span>
+                                                             Spam Bình luận quảng cáo trong diễn đàn 
+                                                         </label>
+                                                         <label class="checkbox-container" style="width: 30%;">
+                                                             <input type="checkbox" name="reasons" value="6"/>
+                                                             <span class="checkmark"></span>
+                                                             Bình luận mang tính phản cảm
+                                                         </label>
+                                                         <label class="checkbox-container" style="width: 30%;">
+                                                             <input type="checkbox" name="reasons" value="7" class="reason-checkbox"/>
+                                                             <span class="checkmark"></span>
+                                                             lý do báo cáo khác
+                                                         </label>
                                                     </div>
                                                     <br>
                                                     <div class="form-group" id="details-container" style="display: none;">
@@ -507,15 +516,15 @@
                         </div>
                         <div class="media forum-item">
                             <%
-                                }
-                                    else{
+                                        }
+                                        else{
                             %>
                             <div class="media forum-item" class="dropbtn">
                                 <%
-                                    }
+                                        }
                                 %>
                                 <%
-                                 if(check == true){
+                                   if(check == true){
                                 %>
                                 <a
                                     href="profile.jsp"
@@ -536,10 +545,10 @@
                                             style="text-decoration: none"
                                             ><%=user.getUsername()%></a>
                                         <p style="font-style: italic; color: gray; font-size: 12px"><%=forum.getPostDate()%></p>
-                                    </h6>            
+                                    </h6> 
                                     <%
                                         }
-                                    else{ 
+                                        else{ 
                                     %> 
 
                                     <a
@@ -584,7 +593,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- ket thuc bai post -->
                         <%
                             }
                         %>
@@ -642,8 +650,6 @@
                                             style="resize: none; overflow: hidden;"
                                             ></textarea>
                                     </div>
-                                    <!--                    <label for="thread-image">Ảnh</label>
-                                                        <input type="file" name="file" id="imgupload" accept="image/png, image/jpeg" style="display:none" onchange="submitForm()"/>-->
                                     <div id="image-preview-container">
                                         <label for="myfile">Chọn ảnh:</label>
                                         <input id="image-upload2" type="file" name="image" accept="image/*">
@@ -682,58 +688,58 @@
                 </div>
             </div>
         </div>
-    </div>                
+    </div>        
     <jsp:include page="footer.jsp"></jsp:include>
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript"></script>
     <script>
 
-                                        // Function to toggle report dropdown visibility
-                                        function toggleReport(button) {
-                                            var dropdownContent = button.nextElementSibling;
-                                            dropdownContent.classList.toggle("show");
-                                        }
+                                            // Function to toggle report dropdown visibility
+                                            function toggleReport(button) {
+                                                var dropdownContent = button.nextElementSibling;
+                                                dropdownContent.classList.toggle("show");
+                                            }
 
-                                        // Close dropdown when clicking outside of it
-                                        window.onclick = function (event) {
-                                            if (!event.target.matches('.dropbtn')) {
-                                                var dropdowns = document.getElementsByClassName("report-dropdown");
-                                                for (var i = 0; i < dropdowns.length; i++) {
-                                                    var openDropdown = dropdowns[i];
-                                                    if (openDropdown.classList.contains('show')) {
-                                                        openDropdown.classList.remove('show');
+                                            // Close dropdown when clicking outside of it
+                                            window.onclick = function (event) {
+                                                if (!event.target.matches('.dropbtn')) {
+                                                    var dropdowns = document.getElementsByClassName("report-dropdown");
+                                                    for (var i = 0; i < dropdowns.length; i++) {
+                                                        var openDropdown = dropdowns[i];
+                                                        if (openDropdown.classList.contains('show')) {
+                                                            openDropdown.classList.remove('show');
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        // Function to show/hide the "Chi tiết" textarea
-                                        document.querySelectorAll('.reason-checkbox').forEach(checkbox => {
-                                            checkbox.addEventListener('change', () => {
-                                                const detailsContainer = document.getElementById('details-container');
-                                                const anyChecked = Array.from(document.querySelectorAll('.reason-checkbox')).some(cb => cb.checked);
-                                                detailsContainer.style.display = anyChecked ? 'block' : 'none';
+                                            // Function to show/hide the "Chi tiết" textarea
+                                            document.querySelectorAll('.reason-checkbox').forEach(checkbox => {
+                                                checkbox.addEventListener('change', () => {
+                                                    const detailsContainer = document.getElementById('details-container');
+                                                    const anyChecked = Array.from(document.querySelectorAll('.reason-checkbox')).some(cb => cb.checked);
+                                                    detailsContainer.style.display = anyChecked ? 'block' : 'none';
 
-                                                // Toggle required attribute
-                                                document.getElementById('thread-detail').required = anyChecked;
+                                                    // Toggle required attribute
+                                                    document.getElementById('thread-detail').required = anyChecked;
+                                                });
                                             });
-                                        });
-                                        document.getElementById('reportForm').addEventListener('submit', function (event) {
-                                            var checkboxes = document.querySelectorAll('input[name="reasons"]');
-                                            var isChecked = false;
+                                            document.getElementById('reportForm').addEventListener('submit', function (event) {
+                                                var checkboxes = document.querySelectorAll('input[name="reasons"]');
+                                                var isChecked = false;
 
-                                            for (var i = 0; i < checkboxes.length; i++) {
-                                                if (checkboxes[i].checked) {
-                                                    isChecked = true;
-                                                    break;
+                                                for (var i = 0; i < checkboxes.length; i++) {
+                                                    if (checkboxes[i].checked) {
+                                                        isChecked = true;
+                                                        break;
+                                                    }
                                                 }
-                                            }
 
-                                            if (!isChecked) {
-                                                alert('Vui lòng chọn ít nhất một lý do báo cáo.');
-                                                event.preventDefault(); // Ngăn chặn việc nộp biểu mẫu
-                                            }
-                                        });
+                                                if (!isChecked) {
+                                                    alert('Vui lòng chọn ít nhất một lý do báo cáo.');
+                                                    event.preventDefault(); // Ngăn chặn việc nộp biểu mẫu
+                                                }
+                                            });
     </script>
     <script>
         // Function to handle file input change event
@@ -774,7 +780,7 @@
             imgElement.style.display = 'none';
             document.getElementById('image-upload2').value = '';
         }
-        
+
         document.getElementById('image-upload2').addEventListener('change', function (event) {
             var file = event.target.files[0];
             var reader = new FileReader();

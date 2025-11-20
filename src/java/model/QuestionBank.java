@@ -4,10 +4,7 @@
  */
 package model;
 
-/**
- *
- * @author sonhu
- */
+
 public class QuestionBank {
     private int userID;
     private int questionId;

@@ -19,10 +19,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 
-/**
- *
- * @author PC
- */
+
 @WebServlet(name = "ViewFlashcardsController", urlPatterns = {"/ViewFlashcardsController"})
 public class ViewFlashcardsController extends HttpServlet {
 

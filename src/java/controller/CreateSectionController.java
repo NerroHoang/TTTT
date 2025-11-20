@@ -25,10 +25,7 @@ import model.Flashcard;
 import model.Section;
 import model.Users;
 
-/**
- *
- * @author phuck
- */
+
 @WebServlet(name = "CreateSectionController", urlPatterns = {"/CreateSectionController"})
 public class CreateSectionController extends HttpServlet {
 

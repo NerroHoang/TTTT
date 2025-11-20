@@ -4,10 +4,7 @@
  */
 package model;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class Tests {
     private int testID;
     private int userID;

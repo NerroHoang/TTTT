@@ -14,10 +14,7 @@ import java.util.List;
 import model.TeacherRequest;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class AdminDAO extends DBConnection {
 
     //add teacher request

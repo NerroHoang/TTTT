@@ -21,10 +21,7 @@ import jakarta.servlet.http.HttpSession;
 import model.Tests;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class Filters implements Filter {
 
     private static final boolean debug = true;

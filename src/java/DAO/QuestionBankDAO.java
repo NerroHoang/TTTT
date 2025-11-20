@@ -12,10 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.*;
 
-/**
- *
- * @author Admin
- */
+
 public class QuestionBankDAO extends DBConnection {
 
     public List<QuestionBank> getQuestionsPageSize(int start, int pageSize) {

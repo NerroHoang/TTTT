@@ -17,10 +17,7 @@ import model.QuestionBank;
 import model.Tests;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class SubmitTest extends HttpServlet {
 
     /**

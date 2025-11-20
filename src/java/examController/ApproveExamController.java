@@ -13,10 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import DAO.*;
 import jakarta.servlet.http.HttpSession;
-/**
- *
- * @author Admin
- */
+
 public class ApproveExamController extends HttpServlet {
    
     /** 

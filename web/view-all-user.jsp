@@ -1,391 +1,311 @@
 <!DOCTYPE html>
 <%@page contentType="text/html" pageEncoding="UTF-8" import="DAO.*, java.util.*, model.*"%>
 <%@ page import="java.util.stream.Collectors" %>
-<html lang="en">
+<html lang="vi">
 
-    <head>
-        <meta charset="utf-8">
-        <title></title>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <meta content="" name="keywords">
-        <meta content="" name="description">
+<head>
+    <meta charset="utf-8">
+    <title>Quản lý người dùng - THI247 Admin</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-        <!-- Favicon -->
-        <link href="img/THI247.png" rel="icon">
+    <link href="img/THI247.png" rel="icon">
 
-        <!-- Google Web Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-        <!-- Icon Font Stylesheet -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            />
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Libraries Stylesheet -->
-        <link href="lib/animate/animate.min.css" rel="stylesheet">
-        <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="assets/css/admin-css.css" rel="stylesheet">
 
-        <!-- Customized Bootstrap Stylesheet -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f6f9ff;
+            font-family: 'Nunito', sans-serif;
+        }
 
-        <!-- Template Stylesheet -->
-        <link href="assets/css/admin-css.css" rel="stylesheet">
-    </head>
-    <body>
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css"
-            integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o="
-            crossorigin="anonymous"
-            />
-        <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
-            <a href="Home" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
-                <h2 class="m-0 text-primary"><i class="fa fa-book me-3"></i>HCV</h2>
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .table thead th {
+            background-color: #f6f9ff;
+            color: #012970;
+            border-bottom: 2px solid #e0e5f2;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+            color: #444;
+        }
+
+        .avatar-img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border: 2px solid #e0e5f2;
+        }
+
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: 0.2rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="header" class="header fixed-top d-flex align-items-center bg-white shadow-sm" style="height: 60px; z-index: 997;">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="Home" class="logo d-flex align-items-center text-decoration-none px-4">
+                <span class="d-none d-lg-block text-primary fw-bold fs-4"><i class="fa fa-book me-2"></i>THI247 Admin</span>
             </a>
-            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <div class="navbar-nav ms-auto p-4 p-lg-0" id="tagID">
-                    <a href="Home" class="nav-item nav-link tag active">Trang Chủ</a>
-                    <a href="forum.jsp" class="nav-item nav-link tag">Diễn Đàn</a>
-                    <a href="teacher.jsp" class="nav-item nav-link tag">Kiểm Tra</a>
-                    <a href="schedule.jsp" class="nav-item nav-link tag">Thời gian biểu</a>
-                    <%
-                        if(session.getAttribute("currentUser") == null){
-                    %>
-                    <a href="login.jsp" class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">Tham gia ngay<i class="fa fa-arrow-right ms-3"></i></a> 
-                        <%
-                            }
-                            else{
-                            Users user = (Users)session.getAttribute("currentUser");
-                            TeacherRequest requests = new AdminDAO().getRequestByUserID(user.getUserID());
-                            Subjects subject = new Subjects();
-                            if(requests != null)
-                                subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
-                            String role;
-                            if(user.getRole() == 1) role = "Admin";
-                            else if(user.getRole() == 2) role = "User VIP";
-                            else role = "User";
-                        %>
-                    <a href="recharge.jsp" class="nav-item nav-link tag">
-                        <i class="fas fa-coins"></i>
-                        <span id="user-balance"><%=user.getBalance()%></span> 
-                        <i class="fas fa-plus-circle"></i> 
-                    </a>
-                </div>
-                <li class="nav-item dropdown pe-3 no">
-                    <style>
-                        .no{
-                            display: block;
-                        }
-                    </style>
-                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="<%=user.getAvatarURL()%>" alt="Profile" width="50" height="50" class="rounded-circle">
-                        <span class="d-none d-md-block dropdown-toggle ps-2"><%=user.getUsername()%></span>
-                    </a><!-- End Profile Iamge Icon -->
+            <i class="bi bi-list toggle-sidebar-btn d-block d-lg-none fs-3 text-primary" style="cursor: pointer; margin-left: 10px;"></i>
+        </div>
 
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                        <li class="dropdown-header">
-                            <h6><%=user.getUsername()%></h6>
-                            <span><%=role%> <%if(user.getRole() == 2){%>môn <%=subject.getSubjectName()%><% }%></span>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <%
-                        if(user.getRole() == 1){
-                        %>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="admin.jsp">
-                                <i class="bi bi-person"></i>
-                                <span>Quản lý</span>
-                            </a>
-                        </li>
-                        <%
-                            }
-                        %>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="profile.jsp">
-                                <i class="bi bi-person"></i>
-                                <span>Thông tin</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="logout">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
-                            </a>
-                        </li>
-
-                    </ul><!-- End Profile Dropdown Items -->
-                </li>
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center m-0 p-0">
                 <%
-                    }
-                %>
-            </div>
-        </nav>
-        <!-- Navbar End -->
-
-        <aside id="sidebar" class="sidebar">
-            <ul class="sidebar-nav" id="sidebar-nav">
-                <li class="nav-item">
-                    <a class="nav-link collapsed"  href="admin.jsp">
-                        <i class="bi bi-grid"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li><!-- End Dashboard Nav -->
-
-                <li class="nav-item">
-                    <a class="nav-link" href="view-all-user.jsp">
-                        <i class="bi bi-person"></i>
-                        <span>Tất cả người dùng</span>
-                    </a>
-                </li>
-                <!-- End Forms Nav -->
-
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-payment.jsp">
-                        <i class="bi bi-gem"></i><span>Giao dịch trong hệ thống</span>
-                    </a>
-                </li><!-- End Tables Nav -->
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-exam.jsp">
-                        <i class="bi bi-journal-check"></i><span>Quản lí kiểm tra</span>
-                    </a>
-
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="view-all-question.jsp">
-                        <i class="bi bi-journal-check"></i><span>Quản lí câu hỏi</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="notification.jsp">
-                        <i class="bi bi-bell"></i><span>Thông báo hệ thống</span>
-                    </a>
-                </li>
-                <!-- End Icons Nav -->
-            </ul>
-        </aside><!-- End Sidebar-->
-
-        <style>
-            .dropdown:hover .dropdown-menu {
-                display: none;
-            }
-
-            .dropdown {
-                position: relative;
-                display: inline-block;
-            }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                background-color: #f1f1f1;
-                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-                z-index: 1;
-            }
-
-            .dropdown-content a {
-                color: black;
-                padding: 12px 16px;
-                text-decoration: none;
-                display: block;
-            }
-            .show {
-                display: block;
-            }
-
-        </style>
-
-        <main id="main" class="main">
-            <h2 class="text-primary">Tất cả người dùng trong hệ thống</h2>
-
-            <!-- Search -->
-            <form method="GET" action="view-all-user.jsp">
-                <div class="form-group">
-                    <!-- Trường nhập cho tìm kiếm -->
-                    <input type="text" id="search" name="search" class="form-control" placeholder="Nhập tên người dùng bạn muốn tìm"
-                           value="<%= request.getParameter("search") != null && !request.getParameter("search").equals("null") ? request.getParameter("search") : "" %>">
-
-                    <!-- Trường ẩn giữ giá trị filter-->
-                    <input type="hidden" name="filter" value="<%= request.getParameter("filter") != null ? request.getParameter("filter") : "all" %>">
-                </div>
-                <button type="submit" class="btn btn-primary text-white">Tìm kiếm</button>
-            </form>
-
-            <br>
-
-            <div class="dropdown">
-                <button class="dropbtn btn btn-primary dropdown-toggle" style="color: white" type="button" onclick="toggleDropdown('dropdownFilter')">
-                    <% 
-                        String displayFilter = "Tất cả người dùng"; // Mặc định là "Tất cả người dùng"
-                        String filter = request.getParameter("filter") != null ? request.getParameter("filter") : "all"; // Lấy filter từ request
-                        if (filter.equals("ban")) displayFilter = "Người dùng đã bị ban";
-                        else if (filter.equals("unban")) displayFilter = "Người dùng không bị ban";
-                    %>
-                    <%= displayFilter %>
-                </button>
-                <div id="dropdownFilter" class="dropdown-content">
-                    <a class="dropdown-item" href="?filter=all&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
-                        Tất cả người dùng
-                    </a>
-                    <a class="dropdown-item" href="?filter=ban&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
-                        Người dùng đã bị ban
-                    </a>
-                    <a class="dropdown-item" href="?filter=unban&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
-                        Người dùng không bị ban
-                    </a>
-                </div>
-            </div>
-
-            <br><br>
-            <div class="container">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-primary" scope="col">ID</th>
-                            <th class="text-primary" scope="col">Avatar</th>
-                            <th class="text-primary" scope="col">Tên người dùng</th>
-                            <th class="text-primary" scope="col">Họ và tên</th>
-                            <th class="text-primary" scope="col">Chức vụ</th>
-                            <th class="text-primary" scope="col">Thông tin cá nhân</th>
-                            <th class="text-primary" scope="col">Tác vụ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-
-                        <!--            list all user    -->
-                        <%
-                        List<Users> users = new UserDAO().getAllUsers();
-                        filter = request.getParameter("filter");
-                        String search = request.getParameter("search");
-                                                                      
-                        if (filter != null) {
-                            if (filter.equals("all")) {
-                                users = new UserDAO().getAllUsers();
-                            } else if(filter.equals("ban")){
-                                users = new AdminDAO().getAllStatusUser(true);
-                            }
-                            else{
-                                users = new AdminDAO().getAllStatusUser(false);
-                            }
-                        }
-                        
-                        // Nếu có giá trị search, lọc danh sách theo username
-                        if (search != null && !search.trim().isEmpty()) {
-                            String searchLower = search.trim().toLowerCase();
-                            users = users.stream()
-                                         .filter(user -> user.getUsername().toLowerCase().contains(searchLower))
-                                         .collect(Collectors.toList());
-                        }
-                        
+                    if(session.getAttribute("currentUser") != null){
+                        Users user = (Users)session.getAttribute("currentUser");
+                        TeacherRequest requests = new AdminDAO().getRequestByUserID(user.getUserID());
+                        Subjects subject = new Subjects();
+                        if(requests != null) subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
                         String role;
-                        if(users.size() > 0){
-                            for(Users user: users){
-                                if(user.getRole() == 1) role = "Admin";
-                                else if(user.getRole() == 2) role = "User VIP";
-                                else role = "User";
-                        %>
-                        <tr>
-                            <td><%=user.getUserID()%></td>
-                            <td><img src="<%=user.getAvatarURL()%>" width="50" height="50" alt="alt" class="rounded-circle"/></td>
-                            <td><%=user.getUsername()%></td>
-                            <td><%if (user.getFullname() != null){%><%=user.getFullname()%><% }else%> </td>
-                            <td><%=role%></td>
-                            <td><span class="badge" style="font-size: 14px"><a href="UserProfile?userID=<%=user.getUserID()%>">Xem chi tiết</a></span></td>
-                            <%
-                            if(user.isBan()){
-                            %>
-                            <td><a href="BanUnbanUser?userID=<%=user.getUserID()%>&isBan=false"><button class="btn btn-primary" style="border-radius: 25px">Unban</button></a></td>
-                            <%
-                                }else{
-                            %>
-                            <td><a href="BanUnbanUser?userID=<%=user.getUserID()%>&isBan=true"><button class="btn btn-ban" style="background-color: red; border-radius: 25px">Ban</button></a></td>
-                            <%
-                                }
-                            %>
-                        </tr>
+                        if(user.getRole() == 1) role = "Admin";
+                        else if(user.getRole() == 2) role = "Teacher";
+                        else role = "User";
+                %>
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <img src="<%=user.getAvatarURL()%>" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                        <span class="d-none d-md-block dropdown-toggle ps-2 text-dark"><%=user.getUsername()%></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile shadow">
+                        <li class="dropdown-header text-center">
+                            <h6><%=user.getUsername()%></h6>
+                            <span><%=role%></span>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item d-flex align-items-center" href="profile.jsp"><i class="bi bi-person"></i> <span>Thông tin</span></a></li>
+                        <li><a class="dropdown-item d-flex align-items-center" href="logout"><i class="bi bi-box-arrow-right"></i> <span>Đăng xuất</span></a></li>
+                    </ul>
+                </li>
+                <% } %>
+            </ul>
+        </nav>
+    </header>
 
-                        <%
-                            }
-                            }
-                        %>
-                        <!--                ket thuc list all user-->
+    <aside id="sidebar" class="sidebar bg-white" style="position: fixed; top: 60px; left: 0; bottom: 0; width: 300px; z-index: 996; padding: 20px; box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1); overflow-y: auto;">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item"><a class="nav-link collapsed" href="admin.jsp"><i class="bi bi-grid"></i><span>Dashboard</span></a></li>
+            <li class="nav-item"><a class="nav-link bg-primary text-white" href="view-all-user.jsp"><i class="bi bi-people-fill"></i><span>Quản lý người dùng</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="view-all-payment.jsp"><i class="bi bi-cash-stack"></i><span>Giao dịch hệ thống</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="view-all-exam.jsp"><i class="bi bi-journal-check"></i><span>Quản lí kiểm tra</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="view-all-question.jsp"><i class="bi bi-question-square"></i><span>Quản lí câu hỏi</span></a></li>
+            <li class="nav-item"><a class="nav-link collapsed" href="notification.jsp"><i class="bi bi-bell"></i><span>Thông báo hệ thống</span></a></li>
+             <li class="nav-item mt-4">
+                <a class="nav-link collapsed rounded text-secondary" href="Home">
+                    <i class="bi bi-arrow-left-circle"></i> <span>Về trang chủ</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
 
+    <main id="main" class="main" style="margin-top: 60px; margin-left: 300px; padding: 20px 30px; transition: all 0.3s;">
 
-                        <!--<tr>
-                                        <td>abc</td>
-                                        <td>getUserImg</td>
-                                        <td>getUsername</td>
-                                        <td>getFullname</td>
-                                        <td>getRole</td>
-                                        <td>redirect to profile</td>
-                                        <td><input type="submit" class="btn btn-primary" value="Unban"/></td>
-                        
-                                    </tr>-->
-                    </tbody>
-
-                </table>
+        <div class="pagetitle d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold text-primary">Quản lý người dùng</h1>
+                <nav>
+                    <ol class="breadcrumb bg-transparent p-0 m-0">
+                        <li class="breadcrumb-item"><a href="admin.jsp">Home</a></li>
+                        <li class="breadcrumb-item active">Danh sách người dùng</li>
+                    </ol>
+                </nav>
             </div>
-        </main><!-- End #main -->
-        <script>
-            /* When the user clicks on the button, 
-             toggle between hiding and showing the dropdown content */
-            function toggleDropdown(dropdownId) {
-                // Đóng tất cả các dropdown trước
-                var dropdowns = document.getElementsByClassName("dropdown-content");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    if (dropdowns[i].id !== dropdownId) {
-                        dropdowns[i].classList.remove("show");
-                    }
-                }
+            <button class="btn btn-outline-primary shadow-sm"><i class="bi bi-person-plus-fill me-1"></i> Thêm mới</button>
+        </div>
 
-                // Bật/tắt dropdown được chọn
-                var dropdown = document.getElementById(dropdownId);
-                dropdown.classList.toggle("show");
+        <div class="card mb-4">
+            <div class="card-body py-3">
+                <form method="GET" action="view-all-user.jsp" class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary small">Tìm kiếm người dùng</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                            <input type="text" name="search" class="form-control" placeholder="Nhập tên người dùng..." 
+                                   value="<%= request.getParameter("search") != null && !request.getParameter("search").equals("null") ? request.getParameter("search") : "" %>">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-secondary small">Trạng thái tài khoản</label>
+                        <div class="dropdown w-100">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown">
+                                <% 
+                                    String filter = request.getParameter("filter");
+                                    if (filter == null) filter = "all";
+                                    String displayFilter = "Tất cả người dùng";
+                                    if ("ban".equals(filter)) displayFilter = "Đã bị khóa (Banned)";
+                                    else if ("unban".equals(filter)) displayFilter = "Đang hoạt động (Active)";
+                                %>
+                                <%= displayFilter %>
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                <li><a class="dropdown-item" href="?filter=all&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">Tất cả người dùng</a></li>
+                                <li><a class="dropdown-item text-danger" href="?filter=ban&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">Đã bị khóa (Banned)</a></li>
+                                <li><a class="dropdown-item text-success" href="?filter=unban&search=<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">Đang hoạt động (Active)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Lọc</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mt-3">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 5%;">ID</th>
+                                <th scope="col" style="width: 10%;">Avatar</th>
+                                <th scope="col" style="width: 20%;" class="text-start">Tên tài khoản</th>
+                                <th scope="col" style="width: 20%;" class="text-start">Họ và tên</th>
+                                <th scope="col" style="width: 10%;">Vai trò</th>
+                                <th scope="col" style="width: 15%;">Trạng thái</th>
+                                <th scope="col" style="width: 20%;">Tác vụ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%
+                                // --- JAVA LOGIC GIỮ NGUYÊN ---
+                                List<Users> users = new UserDAO().getAllUsers();
+                                String search = request.getParameter("search");
+
+                                if (filter != null) {
+                                    if (filter.equals("all")) users = new UserDAO().getAllUsers();
+                                    else if(filter.equals("ban")) users = new AdminDAO().getAllStatusUser(true);
+                                    else users = new AdminDAO().getAllStatusUser(false);
+                                }
+
+                                if (search != null && !search.trim().isEmpty()) {
+                                    String searchLower = search.trim().toLowerCase();
+                                    users = users.stream()
+                                                 .filter(u -> u.getUsername().toLowerCase().contains(searchLower))
+                                                 .collect(Collectors.toList());
+                                }
+
+                                if(users.size() > 0){
+                                    for(Users u: users){
+                                        String uRole;
+                                        String badgeClass;
+                                        if(u.getRole() == 1) { uRole = "Admin"; badgeClass = "bg-danger"; }
+                                        else if(u.getRole() == 2) { uRole = "Teacher"; badgeClass = "bg-primary"; }
+                                        else { uRole = "User"; badgeClass = "bg-secondary"; }
+                            %>
+                            <tr>
+                                <td class="text-center fw-bold text-muted">#<%=u.getUserID()%></td>
+                                <td class="text-center">
+                                    <img src="<%=u.getAvatarURL()%>" alt="Avatar" class="rounded-circle avatar-img shadow-sm">
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark"><%=u.getUsername()%></span>
+                                </td>
+                                <td>
+                                    <% if (u.getFullname() != null){ %><%=u.getFullname()%><% } else { %><span class="text-muted fst-italic">Chưa cập nhật</span><% } %>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge <%=badgeClass%> rounded-pill"><%=uRole%></span>
+                                </td>
+                                <td class="text-center">
+                                    <% if(u.isBan()){ %>
+                                        <span class="badge bg-danger-light text-danger border border-danger"><i class="bi bi-slash-circle me-1"></i>Banned</span>
+                                    <% } else { %>
+                                        <span class="badge bg-success-light text-success border border-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                    <% } %>
+                                </td>
+                                <td class="text-center">
+                                    <a href="UserProfile?userID=<%=u.getUserID()%>" class="btn btn-sm btn-outline-info btn-action me-1" title="Xem chi tiết">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    
+                                    <% if(u.isBan()){ %>
+                                        <a href="BanUnbanUser?userID=<%=u.getUserID()%>&isBan=false" class="btn btn-sm btn-success btn-action" title="Mở khóa tài khoản">
+                                            <i class="bi bi-unlock-fill me-1"></i> Unban
+                                        </a>
+                                    <% } else { %>
+                                        <a href="BanUnbanUser?userID=<%=u.getUserID()%>&isBan=true" class="btn btn-sm btn-danger btn-action" title="Khóa tài khoản" onclick="return confirm('Bạn có chắc chắn muốn khóa tài khoản này?')">
+                                            <i class="bi bi-lock-fill me-1"></i> Ban
+                                        </a>
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% 
+                                    }
+                                } else {
+                            %>
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+                                        <p class="text-muted mt-2">Không tìm thấy người dùng nào.</p>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="position: fixed; width: 40px; height: 40px; bottom: 15px; right: 15px; z-index: 99999;">
+        <i class="bi bi-arrow-up-short fs-4"></i>
+    </a>
+
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <script src="assets/js/main.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const toggleBtn = document.querySelector('.toggle-sidebar-btn');
+            if(toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('toggle-sidebar');
+                    const main = document.querySelector('#main');
+                    const sidebar = document.querySelector('#sidebar');
+                    
+                    if(document.body.classList.contains('toggle-sidebar')){
+                        sidebar.style.left = '-300px';
+                        main.style.marginLeft = '0';
+                    } else {
+                        sidebar.style.left = '0';
+                        if(window.innerWidth >= 1200) {
+                            main.style.marginLeft = '300px';
+                        }
+                    }
+                });
             }
+        });
+    </script>
 
-            // Close the dropdown if the user clicks outside of it
-            window.onclick = function (event) {
-                if (!event.target.matches('.dropbtn')) {
-                    var dropdowns = document.getElementsByClassName("dropdown-content");
-                    for (var i = 0; i < dropdowns.length; i++) {
-                        dropdowns[i].classList.remove("show");
-                    }
-                }
-            };
-        </script>
-
-
-        <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-        <!-- Vendor JS Files -->
-        <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
-        <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="assets/vendor/chart.js/chart.umd.js"></script>
-        <script src="assets/vendor/echarts/echarts.min.js"></script>
-        <script src="assets/vendor/quill/quill.js"></script>
-        <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
-        <script src="assets/vendor/tinymce/tinymce.min.js"></script>
-        <script src="assets/vendor/php-email-form/validate.js"></script>
-
-        <!-- Template Main JS File -->
-        <script src="assets/js/main.js"></script>
-
-
-
-
-
-
-
+</body>
+</html>

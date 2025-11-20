@@ -17,10 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Timestamp;
-/**
- *
- * @author sonhu
- */
+
 @WebServlet(name="ResendOtpServlet", urlPatterns={"/ResendOtpServlet"})
 public class ResendOtpServlet extends HttpServlet {
    

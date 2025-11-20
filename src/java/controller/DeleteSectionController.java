@@ -18,10 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import model.Users;
 
-/**
- *
- * @author PC
- */
+
 @WebServlet(name = "DeleteSectionController", urlPatterns = {"/DeleteSectionController"})
 public class DeleteSectionController extends HttpServlet {
 

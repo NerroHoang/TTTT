@@ -4,10 +4,7 @@
  */
 package model;
 import java.sql.Timestamp;
-/**
- *
- * @author sonhu
- */
+
 public class Task {
     private int userID;
     private int taskId;

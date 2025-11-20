@@ -16,10 +16,7 @@ import java.util.List;
 import model.QuestionBank;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class AddRandomQuestionToExam extends HttpServlet {
 
     /**

@@ -1,353 +1,321 @@
 <!DOCTYPE html>
 <%@page contentType="text/html" pageEncoding="UTF-8" import="DAO.*, java.util.*, model.*"%>
 <jsp:include page="header.jsp"></jsp:include>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         var container = document.getElementById("tagID");
         var tag = container.getElementsByClassName("tag");
         var current = container.getElementsByClassName("active");
-        current[0].className = current[0].className.replace(" active", "");
+        
+        if (current.length > 0) {
+            current[0].className = current[0].className.replace(" active", "");
+        }
     </script>
+
+<%
+// ====================================================================
+// KHAI BÁO VÀ KHỞI TẠO BIẾN CẦN THIẾT
+// ====================================================================
+
+// Lấy thông tin từ request (user id cần xem) và session (người đang đăng nhập)
+Integer idObj = (Integer)request.getAttribute("userID"); 
+if (idObj == null) {
+    idObj = (Integer)session.getAttribute("userID");
+}
+
+if (idObj == null) {
+    response.sendRedirect("error.jsp?msg=UserIDNotFound");
+    return;
+}
+int id = idObj.intValue(); 
+
+Users user = new UserDAO().findByUserID(id); 
+Users currentUser = (Users)session.getAttribute("currentUser"); 
+
+if (user == null) {
+    response.sendRedirect("error.jsp?msg=UserNotFound");
+    return; 
+}
+
+String role = "Không xác định";
+if(user.getRole() == 1) role = "Admin";
+else if(user.getRole() == 2) role = "Giáo viên";
+else role = "Học sinh";
+
+TeacherRequest requests = null;
+Subjects subject = null;
+if(user != null) {
+    requests = new AdminDAO().getRequestByUserID(id);
+    if(requests != null){
+        subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
+    }
+}
+// ====================================================================
+%>
+
     <style>
-        /* General styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
+        /* Các biến màu chủ đạo của THI247 */
+        :root {
+            --thi247-primary: #17a2b8; /* Xanh ngọc */
+            --thi247-secondary: #007bff; /* Xanh dương */
+            --thi247-light-blue: #e0f2f7; /* Nền xanh nhạt */
+            --thi247-text-dark: #343a40;
+            --thi247-text-muted: #6c757d;
+            --thi247-danger: #dc3545; /* Màu đỏ cho nút báo cáo */
         }
 
-        /* Main layout */
+        /* 1. Màu nền đồng bộ */
+        body {
+            background-color: var(--thi247-light-blue);
+            padding-bottom: 50px;
+        }
+
+        /* 2. Cấu trúc tổng thể */
         #main {
             max-width: 1200px;
             margin: 20px auto;
             padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: none; 
+            box-shadow: none;
         }
-
-        /* Profile card */
+        .container {
+            margin-top: 30px;
+            max-width: 1000px;
+        }
+        
+        /* 3. Thiết kế Card */
         .card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: none;
             margin-bottom: 20px;
+            background-color: #fff;
         }
-
-        #card-height {
-            min-height: 400px;
-        }
-
-        .profile-card {
-            text-align: center;
+        .card-body {
             padding: 20px;
         }
-
-        .profile-card img {
+        
+        /* 4. Khối bên trái: Avatar và Bài đăng */
+        .profile-avatar-img {
             border-radius: 50%;
-            border: 4px solid #007bff;
+            border: 4px solid var(--thi247-secondary); 
+            object-fit: cover;
+            margin-bottom: 15px;
         }
-
-        .profile-card h2 {
-            font-size: 24px;
-            margin: 10px 0;
-            color: #007bff;
+        .profile-username h2 {
+            font-size: 1.5rem;
+            color: var(--thi247-text-dark);
+            font-weight: 700;
+            margin-bottom: 5px;
         }
-
-        .profile-card h3 {
-            font-size: 18px;
-            color: #555;
+        .profile-role-text {
+            font-size: 1.1rem;
+            color: var(--thi247-primary);
+            font-weight: 600;
         }
-
-        /* List group */
-        .list-group-item {
-            border: none;
-            padding: 10px 15px;
-            background-color: #f9f9f9;
+        
+        /* 5. Bài đăng gần đây */
+        .recent-posts-header {
+            padding: 15px;
             border-bottom: 1px solid #ddd;
-            transition: background-color 0.2s;
+            font-weight: 700;
+            color: var(--thi247-secondary);
         }
-
-        .list-group-item:last-child {
-            border-bottom: none;
-        }
-
-        .list-group-item:hover {
-            background-color: #f1f1f1;
-        }
-
-        .list-group-item a {
-            color: #007bff;
+        .recent-posts-list a {
+            color: var(--thi247-text-dark);
             text-decoration: none;
-            font-weight: bold;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .recent-posts-list a:hover {
+            color: var(--thi247-primary);
+        }
+        .list-group-item {
+             border: none;
+             padding: 12px 15px;
+             border-bottom: 1px solid #f0f0f0;
         }
 
-        .list-group-item a:hover {
-            text-decoration: underline;
+        /* 6. Chi tiết Profile */
+        .profile-overview {
+            padding: 20px;
         }
-
-        /* Profile details */
-        .label {
-            font-weight: bold;
-            color: #555;
-        }
-
         .profile-overview .row {
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
         }
-
         .profile-overview .row:last-child {
             border-bottom: none;
         }
-
-        /* Modal */
-        .modal-content {
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            background-color: #007bff;
-            color: #fff;
-            border-bottom: none;
-            border-radius: 8px 8px 0 0;
-            padding: 15px;
-        }
-
-        .modal-body {
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
-
-        .modal-footer {
-            background-color: #f1f1f1;
-            padding: 15px;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-        }
-
-        .modal-footer button {
-            border-radius: 4px;
-            padding: 8px 16px;
-        }
-
-        /* Buttons */
-        .btn {
-            font-size: 16px;
-            border-radius: 5px;
-            padding: 10px 20px;
-            transition: background-color 0.2s;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        /* Report section */
-        .checkbox-group label {
-            display: inline-block;
-            margin-right: 10px;
-            font-size: 14px;
-            color: #333;
-        }
-
-        #details-container textarea {
-            width: 100%;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            resize: none;
-        }
-
-        #image-preview-wrapper {
-            position: relative;
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        #image-preview {
-            border-radius: 4px;
-            max-width: 100%;
-            max-height: 300px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        #delete-image {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #ff4d4d;
-            border: none;
-            color: #fff;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
+        .profile-overview .label {
+            font-weight: 600;
+            color: var(--thi247-text-muted);
+            font-size: 1rem;
             display: flex;
             align-items: center;
-            justify-content:     center;
+        }
+        .profile-overview .label i {
+             margin-right: 8px;
+             color: var(--thi247-primary);
+        }
+        .profile-overview .col-lg-9, .col-md-8 {
+             color: var(--thi247-text-dark);
         }
 
-        #delete-image:hover {
-            background-color: #cc0000;
+        /* 7. Nút Trở lại (Style mới) */
+        .btn-back-style {
+            background-color: var(--thi247-secondary) !important;
+            border-color: var(--thi247-secondary) !important;
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: white; /* Đảm bảo chữ trắng */
+        }
+        .btn-back-style i {
+            margin-right: 8px;
+        }
+        
+        /* 8. Nút Report */
+        .btn-report {
+            background-color: var(--thi247-danger);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: inline-flex; /* Đảm bảo icon và text nằm trên cùng một hàng */
+            align-items: center;
+        }
+        .btn-report i {
+            margin-right: 8px;
         }
 
-    </style>   
+    </style>
 
-<%
-int id = (Integer)session.getAttribute("userID");
-Users user = new UserDAO().findByUserID(id);
-Users currentUser = (Users)session.getAttribute("currentUser");
-TeacherRequest requests = new AdminDAO().getRequestByUserID(id);
-Subjects subject = new Subjects();
-if(requests != null){
-    subject = new ExamDAO().getSubjectByID(requests.getSubjectID());
-}
-String role;
-if(user.getRole() == 1) role = "Admin";
-else if(user.getRole() == 2) role = "Giáo viên";
-else role = "Học sinh";
-%>
-</div>
-</nav>
-<!-- Navbar End -->
 <main id="main" class="main">
-    <section class="section profile">
-        <div class="row">
+    <div class="container mt-4">
+        
+        <a href="${pageContext.request.contextPath}/forum.jsp" class="btn btn-primary btn-back-style">
+            <i class="fas fa-arrow-left"></i> Trở lại
+        </a>
+        
+        <section class="section profile">
+            <div class="row">
 
-            <div class="col-xl-4">
-                <div class="card" id="card-height">
-
-                    <div class="card-body profile-card pt-4 d-flex flex-column align-items-center" id="card-center">
-
-
-                        <img src="<%=user.getAvatarURL()%>"class="rounded-circle" width="130px" height="130px">
-                        <h2><%=user.getUsername()%></h2>
-                        <h3><%=role%></h3>    
+                <div class="col-xl-4">
+                    <div class="card">
+                        <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                            <img src="<%=user.getAvatarURL()%>"class="rounded-circle profile-avatar-img" width="130" height="130" alt="User Avatar">
+                            <div class="profile-username">
+                                <h2><%=user.getUsername()%></h2>
+                                <h3 class="profile-role-text"><%=role%></h3>  
+                            </div>
+                            
+                            <%
+                            if(currentUser != null && currentUser.getRole() == 3 && currentUser.getUserID() != user.getUserID()){
+                            %>
+                            <button
+                                class="btn btn-primary btn-report"
+                                type="button"
+                                data-toggle="modal"
+                                data-target="#Report"
+                                >
+                                <i class="fas fa-flag"></i> Báo cáo người dùng 
+                            </button>
+                            <%
+                            }
+                            %>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-body p-0">
+                            <div class="list-group-item recent-posts-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 text-primary">Bài đăng gần đây</h5>
+                                <a href="ViewAllPost?userID=<%=user.getUserID()%>" class="text-decoration-none">Xem tất cả</a>
+                            </div>
+                            
+                            <ul class="list-group list-group-flush recent-posts-list">
+                                <%
+                                List<Forum> forums = new ForumDAO().getAllPostFromUserID(user.getUserID());
+                                if(forums.size() > 0){
+                                    int count = 0;
+                                    for(int i = forums.size() - 1; i >= 0 && count < 5; i--){
+                                        Forum forum = forums.get(i);
+                                        String str;
+                                        if(forum.getPostTitle().length() > 30) 
+                                            str = forum.getPostTitle().substring(0, 30) + "...";
+                                        else str = forum.getPostTitle();
+                                %>
+                                <li class="list-group-item d-flex align-items-center">
+                                    <a href="ForumDetail?postID=<%=forum.getPostID()%>">
+                                        <i class="far fa-comment-dots me-2"></i> <%=str%>
+                                    </a>
+                                </li>
+                                <%
+                                        count++;
+                                    }
+                                } else {
+                                %>
+                                <li class="list-group-item text-center text-muted">
+                                    <%=user.getUsername()%> chưa đăng bài viết nào!
+                                </li>
+                                <%
+                                }
+                                %>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="card mt-3">
-                    <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                        <h4>Bài đăng gần đây</h4>
-                        <h4><a href="ViewAllPost?userID=<%=user.getUserID()%>">Tất cả bài đăng</a></h4>
-                    </div>
-                    <%
-                    List<Forum> forums = new ForumDAO().getAllPostFromUserID(user.getUserID());
-                    if(forums.size() > 0){
-                        String str;
-                        int size;
-                        if(forums.size() > 5) size = forums.size() - 5;
-                        else size = 0;
-                        for(int i = forums.size() - 1; i >= size; i--){
-                        Forum forum = forums.get(i);
-                        if(forum.getPostTitle().length() > 60) 
-                            str = forum.getPostTitle().substring(1, 60) + "...";
-                            else str = forum.getPostTitle();
-                    %>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                            <a
-                                href="ForumDetail?postID=<%=forum.getPostID()%>"
-                                data-target=".forum-content"
-                                class="text-body"
-                                ><%=str%></a
-                            >
-                        </li>
-                    </ul>
-                    <%
-                        }
-                    }
-                    else{
-                    %>
-                    <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                        <%=user.getUsername()%> chưa đăng bài viết nào!
-                    </div>
-                    <%
-                        }
-                    %>
-                </div>
 
-            </div>
+                <div class="col-xl-8">
+                    <div class="card">
+                        <div class="card-body pt-3 profile-overview">
 
+                            <h5 class="card-title text-primary">Thông tin cá nhân</h5>
 
-
-            <div class="col-xl-8">
-
-
-                <div class="card">
-
-                    <div class="card-body pt-3">
-
-                        <!-- Bordered Tabs -->
-                        <div class="tab-content pt-2">
-
-
-                            <div class="tab-pane fade show active profile-overview" id="profile-overview">
-
-                                <h5 class="card-title">Thông tin cá nhân</h5>
-
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Vai trò</div>
-                                    <div class="col-lg-9 col-md-8"><%=role%></div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Ngày Sinh</div>
-                                    <div class="col-lg-9 col-md-8"><%= (user.getDob() != null) ? user.getDob() : "" %></div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Nơi ở</div>
-                                    <div class="col-lg-9 col-md-8"><%= (user.getAddress() != null) ? user.getAddress() : "" %></div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">SĐT</div>
-                                    <div class="col-lg-9 col-md-8"><%= (user.getPhone() != null) ? user.getPhone() : "" %></div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Email</div>
-                                    <div class="col-lg-9 col-md-8"><%=user.getEmail()%></div>
-                                </div>                      
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label"><i class="fas fa-user-tag me-2"></i>Vai trò</div>
+                                <div class="col-lg-9 col-md-8"><%=role%></div>
                             </div>
 
-                            
-                        </div>
-                    </div><!-- End Bordered Tabs -->
-                </div>
-                <button onclick="goToViewAllUsers()" style="padding: 8px 16px; background-color: #20B2AA; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                    <strong>Trở lại</strong>
-                </button>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label"><i class="fas fa-birthday-cake me-2"></i>Ngày Sinh</div>
+                                <div class="col-lg-9 col-md-8"><%= (user.getDob() != null) ? user.getDob() : "(Chưa cập nhật)" %></div>
+                            </div>
 
-                <script>
-                    function goToViewAllUsers() {
-                        window.location.href = "view-all-user.jsp";
-                    }
-                </script>
-                <!-- start of modal -->
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label"><i class="fas fa-map-marker-alt me-2"></i>Nơi ở</div>
+                                <div class="col-lg-9 col-md-8"><%= (user.getAddress() != null) ? user.getAddress() : "(Chưa cập nhật)" %></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label"><i class="fas fa-phone-alt me-2"></i>SĐT</div>
+                                <div class="col-lg-9 col-md-8"><%= (user.getPhone() != null) ? user.getPhone() : "(Chưa cập nhật)" %></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label"><i class="fas fa-envelope me-2"></i>Email</div>
+                                <div class="col-lg-9 col-md-8"><%=user.getEmail()%></div>
+                            </div>          
+                        </div>
+                    </div></div>
+                
                 <%
-                if(currentUser.getRole() == 3){
+                if(currentUser != null && currentUser.getRole() == 3){
                 %>
-                <button
-                    class="btn btn-primary has-icon btn-block"
-                    type="button"
-                    data-toggle="modal"
-                    data-target="#Report"
-                    >Report</button>
                 <div
                     class="modal fade"
                     id="Report"
@@ -362,73 +330,25 @@ else role = "Học sinh";
                                 <input type="hidden" name="link" value="user-profiles.jsp"/>
                                 <input type="hidden" name="otherUserID" value="<%=id%>"/>
                                 <div class="modal-header d-flex align-items-center bg-primary text-white">
-                                    <h6 class="modal-title mb-0" id="threadModalLabel">
-                                        Report
-                                    </h6>
-                                    <button
-                                        type="button"
-                                        class="close"
-                                        data-dismiss="modal"
-                                        aria-label="Close"
-                                        >
-                                        <span aria-hidden="true">×</span>
-                                    </button>
+                                    <h6 class="modal-title mb-0">Báo cáo người dùng</h6>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
                                         <label for="threadTitle">Lý do báo cáo</label>
-                                        <div class="checkbox-group" style="
-                                             display: flex;
-                                             flex-wrap: wrap;
-                                             gap: 10px; /* Khoảng cách giữa các checkbox */
-                                             margin-top: 20px;">
-                                            <label class="checkbox-container" style="width: 30%;">
-                                                <input type="checkbox" name="reasons" value="1"/>
-                                                <span class="checkmark"></span>
-                                                Lạm dụng ngôn từ
-                                            </label>
-                                            <label class="checkbox-container" style="width: 30%;">
-                                                <input type="checkbox" name="reasons" value="2"/>
-                                                <span class="checkmark"></span>
-                                                Hành vi gây rối diễn đàn
-                                            </label>
-                                            <label class="checkbox-container" style="width: 30%;">
-                                                <input type="checkbox" name="reasons" value="3"/>
-                                                <span class="checkmark"></span>
-                                                Tạo bài đăng sai mục đích 
-                                            </label>
-                                            <label class="checkbox-container" style="width: 30%;">
-                                                <input type="checkbox" name="reasons" value="4"/>
-                                                <span class="checkmark"></span>
-                                                Bài đăng Không liên quan 
-                                            </label>
-                                            <label class="checkbox-container" style="width: 30%;">
-                                                <input type="checkbox" name="reasons" value="5"/>
-                                                <span class="checkmark"></span>
-                                                Spam Bình luận quảng cáo trong diễn đàn 
-                                            </label>
-                                            <label class="checkbox-container" style="width: 30%;">
-                                                <input type="checkbox" name="reasons" value="6"/>
-                                                <span class="checkmark"></span>
-                                                Bình luận mang tính phản cảm
-                                            </label>
-                                            <label class="checkbox-container" style="width: 30%;">
-                                                <input type="checkbox" name="reasons" value="7" class="reason-checkbox"/>
-                                                <span class="checkmark"></span>
-                                                lý do báo cáo khác
-                                            </label>
+                                        <div class="checkbox-group" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+                                            <label class="checkbox-container" style="width: 30%;"><input type="checkbox" name="reasons" value="1"/><span class="checkmark"></span> Lạm dụng ngôn từ</label>
+                                            <label class="checkbox-container" style="width: 30%;"><input type="checkbox" name="reasons" value="2"/><span class="checkmark"></span> Hành vi gây rối diễn đàn</label>
+                                            <label class="checkbox-container" style="width: 30%;"><input type="checkbox" name="reasons" value="3"/><span class="checkmark"></span> Tạo bài đăng sai mục đích</label>
+                                            <label class="checkbox-container" style="width: 30%;"><input type="checkbox" name="reasons" value="4"/><span class="checkmark"></span> Bài đăng Không liên quan</label>
+                                            <label class="checkbox-container" style="width: 30%;"><input type="checkbox" name="reasons" value="5"/><span class="checkmark"></span> Spam Bình luận quảng cáo</label>
+                                            <label class="checkbox-container" style="width: 30%;"><input type="checkbox" name="reasons" value="6"/><span class="checkmark"></span> Bình luận phản cảm</label>
+                                            <label class="checkbox-container" style="width: 30%;"><input type="checkbox" name="reasons" value="7" class="reason-checkbox"/><span class="checkmark"></span> lý do báo cáo khác</label>
                                         </div>
                                         <br>
                                         <div class="form-group" id="details-container" style="display: none;">
                                             <label for="thread-detail">Chi tiết</label>
-                                            <textarea
-                                                type="text"
-                                                class="form-control"
-                                                name="context"
-                                                id="thread-detail"
-                                                placeholder="Chi tiết"
-                                                rows="5"
-                                                style="resize: none; overflow: hidden;"></textarea>
+                                            <textarea type="text" class="form-control" name="context" id="thread-detail" placeholder="Chi tiết" rows="5" style="resize: none; overflow: hidden;"></textarea>
                                         </div>
                                         <div id="image-preview-container">
                                             <label for="myfile">Chọn ảnh:</label>
@@ -439,106 +359,98 @@ else role = "Học sinh";
                                                 <button id="delete-image"><i class="fa fa-times"></i></button>
                                             </div>
                                         </div>
-                                        <br>
                                         <br><br>
                                         <textarea class="form-control summernote" style="display: none"></textarea>
                                         <div class="custom-file form-control-sm mt-3" style="max-width: 300px"></div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button onclick="removeURL(this)"
-                                                type="button"
-                                                class="btn btn-light"
-                                                data-dismiss="modal"
-                                                >
-                                            Hủy
-                                        </button>
-                                        <input type="submit" class="btn btn-primary" value="Đăng"/>
-                                    </div>
-                                </div> 
+                                </div>
+                                <div class="modal-footer">
+                                    <button onclick="removeURL(this)" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
+                                    <input type="submit" class="btn btn-primary" value="Gửi báo cáo"/>
+                                </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                <!-- End of modal -->
                 <%
-                    }
+                }
                 %>
-            </div>
-        </div>
-        </div>
-    </section>
+                </div>
+        </section>
 
-</main><!-- End #main -->
-<!-- required!!!! modal -->
-<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript"></script>
-<script>
-                                            document.getElementById('image-upload').addEventListener('change', function (event) {
-                                                var file = event.target.files[0];
-                                                var reader = new FileReader();
+    </main><script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript"></script>
+    <script>
+        // Hàm này không cần thiết nếu dùng thẻ <a> có href trực tiếp
+        // function goToForumPage() { 
+        //     window.location.href = "forum.jsp"; 
+        // }
 
-                                                reader.onload = function (e) {
-                                                    var imgElement = document.getElementById('image-preview');
-                                                    imgElement.src = e.target.result;
-                                                    imgElement.style.display = 'block';
+        function goToViewAllUsers() {
+            window.location.href = "view-all-user.jsp";
+        }
 
-                                                    // Show delete button
-                                                    document.getElementById('delete-image').style.display = 'inline-block';
-                                                }
+        // --- REPORT MODAL JS LOGIC (Đã giữ nguyên logic cũ) ---
+        document.getElementById('image-upload').addEventListener('change', function (event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
 
-                                                reader.readAsDataURL(file);
-                                            });
+            reader.onload = function (e) {
+                var imgElement = document.getElementById('image-preview');
+                imgElement.src = e.target.result;
+                imgElement.style.display = 'block';
+                document.getElementById('delete-image').style.display = 'inline-block';
+            }
 
-                                            document.getElementById('delete-image').addEventListener('click', function (event) {
-                                                event.preventDefault(); // Prevent default behavior (page reload)
+            reader.readAsDataURL(file);
+        });
 
-                                                var imgElement = document.getElementById('image-preview');
-                                                imgElement.src = '#'; // Clear the preview
-                                                imgElement.style.display = 'none';
+        document.getElementById('delete-image').addEventListener('click', function (event) {
+            event.preventDefault(); 
+            var imgElement = document.getElementById('image-preview');
+            imgElement.src = '#'; 
+            imgElement.style.display = 'none';
+            document.getElementById('delete-image').style.display = 'none';
+            document.getElementById('image-upload').value = '';
+        });
 
-                                                // Hide delete button
-                                                document.getElementById('delete-image').style.display = 'none';
+        function removeURL() {
+            var imgElement = document.getElementById('image-preview');
+            imgElement.src = '#'; 
+            imgElement.style.display = 'none';
+            document.getElementById('image-upload').value = '';
+        }
 
-                                                // Reset file input
-                                                document.getElementById('image-upload').value = '';
-                                            });
+        // Function to show/hide the "Chi tiết" textarea
+        document.querySelectorAll('.reason-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const detailsContainer = document.getElementById('details-container');
+                const anyChecked = Array.from(document.querySelectorAll('.reason-checkbox')).some(cb => cb.checked);
+                detailsContainer.style.display = anyChecked ? 'block' : 'none';
 
-                                            function removeURL() {
-                                                var imgElement = document.getElementById('image-preview');
-                                                imgElement.src = '#'; // Clear the preview
-                                                imgElement.style.display = 'none';
-                                                document.getElementById('image-upload').value = '';
-                                            }
+                // Toggle required attribute
+                document.getElementById('thread-detail').required = anyChecked;
+            });
+        });
+        document.getElementById('reportForm').addEventListener('submit', function (event) {
+            var checkboxes = document.querySelectorAll('input[name="reasons"]');
+            var isChecked = false;
 
-                                            // Function to show/hide the "Chi tiết" textarea
-                                            document.querySelectorAll('.reason-checkbox').forEach(checkbox => {
-                                                checkbox.addEventListener('change', () => {
-                                                    const detailsContainer = document.getElementById('details-container');
-                                                    const anyChecked = Array.from(document.querySelectorAll('.reason-checkbox')).some(cb => cb.checked);
-                                                    detailsContainer.style.display = anyChecked ? 'block' : 'none';
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    isChecked = true;
+                    break;
+                }
+            }
 
-                                                    // Toggle required attribute
-                                                    document.getElementById('thread-detail').required = anyChecked;
-                                                });
-                                            });
-                                            document.getElementById('reportForm').addEventListener('submit', function (event) {
-                                                var checkboxes = document.querySelectorAll('input[name="reasons"]');
-                                                var isChecked = false;
+            if (!isChecked) {
+                alert('Vui lòng chọn ít nhất một lý do báo cáo.');
+                event.preventDefault(); // Ngăn chặn việc nộp biểu mẫu
+            }
+        });
+    </script>
 
-                                                for (var i = 0; i < checkboxes.length; i++) {
-                                                    if (checkboxes[i].checked) {
-                                                        isChecked = true;
-                                                        break;
-                                                    }
-                                                }
-
-                                                if (!isChecked) {
-                                                    alert('Vui lòng chọn ít nhất một lý do báo cáo.');
-                                                    event.preventDefault(); // Ngăn chặn việc nộp biểu mẫu
-                                                }
-                                            });
-</script>
 <jsp:include page="footer.jsp"></jsp:include>
 
 <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

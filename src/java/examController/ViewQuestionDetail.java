@@ -13,10 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class ViewQuestionDetail extends HttpServlet {
 
     /**

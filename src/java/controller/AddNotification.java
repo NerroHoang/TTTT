@@ -15,10 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Users;
 
-/**
- *
- * @author Admin
- */
+
 @WebServlet(name = "AddNotification", urlPatterns = {"/AddNotification"})
 public class AddNotification extends HttpServlet {
 

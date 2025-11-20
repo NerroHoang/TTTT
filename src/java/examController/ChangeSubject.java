@@ -16,10 +16,6 @@ import java.util.List;
 import model.QuestionBank;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
 public class ChangeSubject extends HttpServlet {
 
     /**

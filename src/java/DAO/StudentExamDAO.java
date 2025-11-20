@@ -17,10 +17,7 @@ import model.Result;
 import model.StudentChoice;
 import model.Tests;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class StudentExamDAO {
 
     //Get all exam by subjectID

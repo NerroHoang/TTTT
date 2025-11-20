@@ -12,10 +12,7 @@ import java.util.List;
 import model.Comments;
 import model.Forum;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class ForumDAO extends DBConnection {
 
     public void createNewPost(int userID, String postTitle, String postContext, String postIMG) {

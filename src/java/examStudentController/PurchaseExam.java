@@ -17,10 +17,7 @@ import jakarta.servlet.http.HttpSession;
 import model.Exam;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class PurchaseExam extends HttpServlet {
 
     /**

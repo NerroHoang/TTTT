@@ -16,10 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import model.Users;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class UpdateController extends HttpServlet {
 
     /**

@@ -12,10 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author GoldCandy
- */
+
 public class PassDataPostUpdate extends HttpServlet {
 
     /**

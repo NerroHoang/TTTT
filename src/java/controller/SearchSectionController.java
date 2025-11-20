@@ -16,10 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Section;
 
-/**
- *
- * @author phuck
- */
+
 @WebServlet(name = "SearchSectionController", urlPatterns = {"/SearchSectionController"})
 public class SearchSectionController extends HttpServlet {
 

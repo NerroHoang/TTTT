@@ -6,9 +6,7 @@ package Email;
  * and open the template in the editor.
  */
 
-/**
- * @author heaty566
- */
+
 public class UserGoogleDto {
 
 	private String id;

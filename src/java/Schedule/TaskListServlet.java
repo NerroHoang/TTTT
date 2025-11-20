@@ -16,10 +16,7 @@ import java.util.List;
 import model.Task;
 import model.Users;
 
-/**
- *
- * @author sonhu
- */
+
 @WebServlet(name = "TaskListServlet", urlPatterns = {"/TaskListServlet"})
 public class TaskListServlet extends HttpServlet {
 
