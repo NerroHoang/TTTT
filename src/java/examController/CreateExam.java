@@ -1,104 +1,125 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package examController;
 
 import DAO.ExamDAO;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Users;
 
-
+@WebServlet(name = "CreateExam", urlPatterns = {"/CreateExam"})
 public class CreateExam extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // 1. Xử lý Tiếng Việt
+        request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
+
         HttpSession session = request.getSession();
         Users user = (Users) session.getAttribute("currentUser");
-        int subjectID = Integer.parseInt(request.getParameter("subjectID"));
-        int examHours = Integer.parseInt(request.getParameter("examHours"));
-        int examMinutes = Integer.parseInt(request.getParameter("examMinutes"));
-        int price = Integer.parseInt(request.getParameter("price"));
-        String examName = request.getParameter("examName");
-        String[] QuestionIDs = request.getParameterValues("selectedQuestions");
-        if(QuestionIDs == null){
-            request.setAttribute("error", "Vui lòng chọn ít nhất một câu hỏi trong bài kiểm tra");
-            request.getRequestDispatcher("create-exam.jsp").forward(request, response);
-        }
-        else{
-            int examTime = (examHours * 3600) + (examMinutes * 60);
 
+        // 2. Kiểm tra đăng nhập
+        if (user == null) {
+            response.sendRedirect("login.jsp"); // Hoặc trang login của bạn
+            return;
+        }
+
+        try {
+            // 3. Lấy subjectID an toàn (Ưu tiên lấy từ Session vì form có thể không gửi)
+            int subjectID = 0;
+            if (session.getAttribute("subjectID") != null) {
+                subjectID = (Integer) session.getAttribute("subjectID");
+            } else if (request.getParameter("subjectID") != null) {
+                // Dự phòng nếu có gửi kèm param
+                subjectID = Integer.parseInt(request.getParameter("subjectID"));
+            }
+
+            // Nếu không có subjectID thì không thể tạo bài thi -> quay về
+            if (subjectID == 0) {
+                response.sendRedirect("choosesubject.jsp");
+                return;
+            }
+
+            // 4. Lấy dữ liệu an toàn (Tránh lỗi NumberFormatException)
+            String examName = request.getParameter("examName");
+            
+            String hoursStr = request.getParameter("examHours");
+            int examHours = (hoursStr != null && !hoursStr.isEmpty()) ? Integer.parseInt(hoursStr) : 0;
+
+            String minutesStr = request.getParameter("examMinutes");
+            int examMinutes = (minutesStr != null && !minutesStr.isEmpty()) ? Integer.parseInt(minutesStr) : 0;
+
+            String priceStr = request.getParameter("price");
+            int price = (priceStr != null && !priceStr.isEmpty()) ? Integer.parseInt(priceStr) : 0;
+
+            // 5. Lấy danh sách câu hỏi đã chọn
+            String[] QuestionIDs = request.getParameterValues("selectedQuestions");
+
+            // Validation: Kiểm tra có chọn câu hỏi không
+            if (QuestionIDs == null || QuestionIDs.length == 0) {
+                request.setAttribute("error", "Vui lòng chọn ít nhất một câu hỏi!");
+                request.getRequestDispatcher("create-exam.jsp").forward(request, response);
+                return; // Dừng xử lý
+            }
+
+            // 6. Tính tổng thời gian (giây)
+            int examTime = (examHours * 3600) + (examMinutes * 60);
+            
+            // Kiểm tra thời gian hợp lệ (ít nhất 1 phút)
+            if (examTime <= 0) {
+                request.setAttribute("error", "Thời gian làm bài phải lớn hơn 0!");
+                request.getRequestDispatcher("create-exam.jsp").forward(request, response);
+                return;
+            }
+
+            // 7. Lưu vào Database
+            ExamDAO dao = new ExamDAO();
+            
+            // Lưu thông tin bài thi (Exam Header)
+            // User ID: Nếu là Admin (role=1) thì set cứng là 1, nếu là Teacher thì lấy ID của teacher
+            int creatorID = (user.getRole() == 1) ? 1 : user.getUserID();
+            dao.addExam(examName, creatorID, subjectID, examTime, price);
+
+            // Lấy ID bài thi vừa tạo
+            int examID = dao.getLastestExam().getExamID();
+
+            // Lưu chi tiết câu hỏi vào bài thi (Exam Details)
+            for (String qID : QuestionIDs) {
+                dao.addQuestionToExam(Integer.parseInt(qID), examID);
+            }
+
+            // 8. Điều hướng sau khi thành công
             if (user.getRole() == 1) {
-                new ExamDAO().addExam(examName, 1, subjectID, examTime, price);
-                int examID = new ExamDAO().getLastestExam().getExamID();
-                for (String QuestionID : QuestionIDs) {
-                    new ExamDAO().addQuestionToExam(Integer.parseInt(QuestionID), examID);
-                }
                 response.sendRedirect("view-all-exam.jsp");
             } else {
-                new ExamDAO().addExam(examName, user.getUserID(), subjectID, examTime, price);
-                int examID = new ExamDAO().getLastestExam().getExamID();
-                for (String QuestionID : QuestionIDs) {
-                    new ExamDAO().addQuestionToExam(Integer.parseInt(QuestionID), examID);
-                }
-                response.sendRedirect("ViewAllExamTeacher.jsp");
+                response.sendRedirect("ViewAllExamTeacher.jsp"); // Hoặc trang quản lý của GV
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Đã xảy ra lỗi hệ thống: " + e.getMessage());
+            request.getRequestDispatcher("create-exam.jsp").forward(request, response);
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Create Exam Servlet";
+    }
 }
